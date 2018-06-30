@@ -1,0 +1,13 @@
+.create-transfer-form {
+    flex: 1 1 auto;
+    width: 100%;
+    display: flex;
+
+    label {
+        flex: 0 1 auto;
+    }
+    input {
+        min-width: 20px;
+        flex: 1 1 auto;
+    }
+}
