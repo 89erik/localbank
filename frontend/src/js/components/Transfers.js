@@ -17,7 +17,7 @@ class Transfers extends Component {
     renderSettlement(settlement) {
         if (!settlement) return null;
         return <div>
-            {settlement.from} skylder {settlement.to} {settlement.amount.toFixed(2)}
+            {settlement.fra} skylder {settlement.til} {settlement.belop.toFixed(2)}
             </div>;
     }
     columns = [
@@ -44,7 +44,6 @@ class Transfers extends Component {
         return (
             <div className="transfers">
                 {this.renderSettlement(settlements(this.props.transfers.items))}
-                Overføringer:
                 {this.props.transfers.isFetching}
                 <ReactTable 
                     data={this.props.transfers.items} 

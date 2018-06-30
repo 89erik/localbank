@@ -1,4 +1,4 @@
-export const settlements = (transfers, accounts) => {
+export const settlements = (transfers) => {
     const balance = {
         erik: 0,
         beate: 0,
@@ -7,13 +7,13 @@ export const settlements = (transfers, accounts) => {
 
     for (let i=0; i<transfers.length; i++) {
         const transfer = transfers[i];
-        balance[transfer.from] -= transfer.amount;
-        balance[transfer.to]   += transfer.amount;
+        balance[transfer.fra] -= transfer.belop;
+        balance[transfer.til] += transfer.belop;
     }
     
     balance.erik += balance.felles / 2;
     balance.beate += balance.felles / 2;
 
-    if (balance.beate < 0) return {from: "erik", to: "beate", amount: balance.erik}
-    else if (balance.erik < 0) return {from: "beate", to: "erik", amount: balance.beate}
+    if (balance.beate < 0) return {fra: "erik", til: "beate", belop: balance.erik}
+    else if (balance.erik < 0) return {fra: "beate", til: "erik", belop: balance.beate}
 }
