@@ -1,13 +1,20 @@
 .create-transfer-form {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     width: 100%;
+    margin-bottom: 10px;
     display: flex;
+    flex-direction: column;
 
-    label {
-        flex: 0 1 auto;
+    .simple-field {
+        padding-left: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        border-color: #d9d9d9 #ccc #b3b3b3;
+        color: #333;
+        height: 36px;
     }
-    input {
-        min-width: 20px;
-        flex: 1 1 auto;
+
+    .simple-field::placeholder {
+        color: #aaa;
     }
 }

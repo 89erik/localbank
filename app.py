@@ -18,7 +18,7 @@ def post_transfer():
             "til": dto["til"],
             "belop": float(dto["belop"]),
             "timestamp": datetime.now(),
-            "kommentar": dto["kommentar"]
+            "kommentar": dto["kommentar"] if "kommentar" in dto else ""
     }
 
     db.transfers.insert_one(transfer)

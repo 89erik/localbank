@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form'
+import Select from 'react-select';
+import 'react-select/dist/react-select.css'
+import '../../style/transfers.css'
 
 import {postTransfer} from '../actions';
 
@@ -15,18 +18,65 @@ class CreateTransfer extends Component {
     }
 }
 
+const accountSelector = (field) => (
+    <Select
+        {...field.input}
+        onChange={field.input.onChange}
+        onBlur={v => field.input.onBlur(v.value)}
+        clearable={false}
+        options={field.options}
+        placeholder={field.placeholder}
+        autoBlur
+    />
+)
+
+const accounts = ["erik", "beate", "felles"];
+const accountsFra = accounts.map(a => ({
+    value: a,
+    label: "Fra " + a
+}));
+const accountsTil = accounts.map(a => ({
+    value: a,
+    label: "Til " + a
+}));
+
+const required = v => (v||"").length === 0 ? "Påkrevd" : undefined;
+
 const CreateTransferForm = reduxForm({
     form: 'createTransfer'
 })(props => {
     return (
         <form onSubmit={props.handleSubmit} className="create-transfer-form">
-                <label htmlFor="fra">Fra</label>
-                <Field name="fra" component="input" type="text"/>
-                <label htmlFor="til">Til</label>
-                <Field name="til" component="input" type="text"/>
-                <label htmlFor="belop">Belop</label>
-                <Field name="belop" component="input" type="num"/>
-                <button type="submit">Lagre</button>
+            <Field 
+                name="fra" 
+                component={accountSelector}
+                options={accountsFra}
+                placeholder={"Fra konto"}
+                validate={required}
+            />
+            <Field 
+                name="til" 
+                component={accountSelector}
+                options={accountsTil}
+                placeholder={"Til konto"}
+                validate={required}
+            />
+            <Field 
+                name="belop" 
+                placeholder="Beløp"
+                component="input" 
+                type="number"
+                validate={required}
+                className="simple-field"
+            />
+            <Field 
+                name="kommentar" 
+                placeholder="Kommentar"
+                component="input" 
+                type="text"
+                className="simple-field"
+            />
+            <button type="submit" className="Select-control">Lagre</button>
         </form>
     );
 });

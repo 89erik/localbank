@@ -1,3 +1,4 @@
+import {reset} from 'redux-form'
 import {GET, POST} from './utils/api'
 
 export const GET_TRANSFERS_REQUEST = "GET_TRANSFERS_REQUEST";
@@ -20,8 +21,14 @@ export const fetchTransfers = () => dispatch => {
 export const postTransfer = (transfer) => dispatch => {
     dispatch({type: POST_TRANSFER_REQUEST});
 
+    transfer = {
+        ...transfer,
+        fra: transfer.fra.value,
+        til: transfer.til.value
+    }
     POST("/transfer", transfer)
         .then(() => {
+            dispatch(reset("createTransfer"));
             dispatch({type: POST_TRANSFER_SUCCESS});
             dispatch(fetchTransfers())
         });
