@@ -20,12 +20,12 @@ const CreateTransferForm = reduxForm({
 })(props => {
     return (
         <form onSubmit={props.handleSubmit} className="create-transfer-form">
-                <label htmlFor="from">Fra</label>
-                <Field name="from" component="input" type="text"/>
-                <label htmlFor="to">Til</label>
-                <Field name="to" component="input" type="text"/>
-                <label htmlFor="amount">Mengde</label>
-                <Field name="amount" component="input" type="num"/>
+                <label htmlFor="fra">Fra</label>
+                <Field name="fra" component="input" type="text"/>
+                <label htmlFor="til">Til</label>
+                <Field name="til" component="input" type="text"/>
+                <label htmlFor="belop">Belop</label>
+                <Field name="belop" component="input" type="num"/>
                 <button type="submit">Lagre</button>
         </form>
     );

@@ -5,6 +5,7 @@
 from flask import Flask, request, json
 from pymongo import MongoClient
 from bson import json_util
+from datetime import datetime
 
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
@@ -13,9 +14,11 @@ db = MongoClient("localhost", 27017).localbank
 def post_transfer():
     dto = request.json;
     transfer = {
-            "from": dto["from"],
-            "to": dto["to"],
-            "amount": float(dto["amount"])
+            "fra": dto["fra"],
+            "til": dto["til"],
+            "belop": float(dto["belop"]),
+            "timestamp": datetime.now(),
+            "kommentar": dto["kommentar"]
     }
 
     db.transfers.insert_one(transfer)
@@ -24,7 +27,14 @@ def post_transfer():
 @app.route('/transfers', methods=['GET'])
 def get_transfers():
     transfers = db.transfers.find({})
-    return to_json(transfers)
+    dto = map(lambda transfer: {
+        "fra": transfer["fra"],
+        "til": transfer["til"],
+        "belop": transfer["belop"],
+        "timestamp": transfer["timestamp"].isoformat(),
+        "kommentar": transfer["kommentar"]
+        }, transfers)
+    return to_json(dto)
     
 
 def to_json(page):

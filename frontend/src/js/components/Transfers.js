@@ -20,18 +20,23 @@ class Transfers extends Component {
             {settlement.from} skylder {settlement.to} {settlement.amount.toFixed(2)}
             </div>;
     }
-
     columns = [
         {
+            Header: "Tidspunkt",
+            accessor: "timestamp",
+        },{
             Header: "Fra",
-            accessor: "from"
+            accessor: "fra"
         },{
             Header: "Til",
-            accessor: "to"
+            accessor: "til"
         },{
             Header: "Beløp",
-            id: "amount",
-            accessor: t => t.amount.toFixed(2)
+            id: "belop",
+            accessor: t => t.belop.toFixed(2)
+        },{
+            Header: "Kommentar",
+            accessor: "kommentar",
         }
     ];
 
@@ -45,6 +50,7 @@ class Transfers extends Component {
                     data={this.props.transfers.items} 
                     columns={this.columns}
                     filterable
+                    defaultSorted={[{id: "timestamp", desc: true}]}
                 />
                 
             </div>
