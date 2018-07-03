@@ -5,9 +5,8 @@ import {
     GET_TRANSFERS_REQUEST, 
     GET_TRANSFERS_SUCCESS, 
     GET_TRANSFERS_FAILURE,
-    POST_TRANSFER_REQUEST, 
     POST_TRANSFER_SUCCESS, 
-    POST_TRANSFER_FAILURE
+    EDIT_TRANSFER,
 } from './actions';
 
 const transfers = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -25,7 +24,6 @@ const transfers = (state = {isFetching:false, needsFetch:true, items:[]}, action
                 needsFetch: false
             };
         case GET_TRANSFERS_SUCCESS:
-            console.log(action.transfers)
             return {
                 ...state,
                 isFetching: false,
@@ -37,7 +35,11 @@ const transfers = (state = {isFetching:false, needsFetch:true, items:[]}, action
                 ...state,
                 needsFetch: true
             }
-
+        case EDIT_TRANSFER:
+            return {
+                ...state,
+                selectedTransfer: action.transferId && state.items.find(t => t.id === action.transferId)
+            };
         default:
             return state;
     }

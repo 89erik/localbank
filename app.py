@@ -5,14 +5,15 @@
 from flask import Flask, request, json
 from pymongo import MongoClient
 from bson import json_util
+from bson.objectid import ObjectId
 from datetime import datetime
 
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
 
-@app.route('/transfer', methods=['POST'])
+@app.route('/transfer', methods=["POST", "PUT"])
 def post_transfer():
-    dto = request.json;
+    dto = request.json
     transfer = {
             "fra": dto["fra"],
             "til": dto["til"],
@@ -21,13 +22,24 @@ def post_transfer():
             "kommentar": dto["kommentar"] if "kommentar" in dto else ""
     }
 
-    db.transfers.insert_one(transfer)
+    if request.method == "POST":
+        db.transfers.insert_one(transfer)
+    elif request.method == "PUT":
+        res = db.transfers.replace_one({"_id": ObjectId(dto["id"])}, transfer)
+        if not (res.acknowledged and res.matched_count == 1): 
+            return not_found(dto["id"])
     return no_content()
+
+@app.route('/transfer/<transferId>', methods=['DELETE'])
+def delete_transfer(transferId):
+    res = db.transfers.delete_one({"_id": ObjectId(transferId)})
+    return no_content() if res.acknowledged else not_found(transferId)
 
 @app.route('/transfers', methods=['GET'])
 def get_transfers():
     transfers = db.transfers.find({})
     dto = map(lambda transfer: {
+        "id": str(transfer["_id"]),
         "fra": transfer["fra"],
         "til": transfer["til"],
         "belop": transfer["belop"],
@@ -42,6 +54,9 @@ def to_json(page):
 
 def no_content():
     return ("", 204)
+
+def not_found(msg):
+    return (msg, 404)
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0', port=5001)

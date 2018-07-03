@@ -3,13 +3,14 @@ import { connect } from 'react-redux';
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 
+import EditTransferPopup from './EditTransferPopup';
 
-import {fetchTransfers} from '../actions';
+import {fetchTransfers, editTransfer, putTransfer, deleteTransfer} from '../actions';
 import {settlements} from '../utils/debts';
 
 class Transfers extends Component {
     componentWillMount() {
-        if (this.props.transfers.needsFetch){
+        if (this.props.needsFetch){
             this.props.dispatch(fetchTransfers());
         }
     }
@@ -20,45 +21,61 @@ class Transfers extends Component {
             {settlement.fra} skylder {settlement.til} {settlement.belop.toFixed(2)}
             </div>;
     }
+    renderColumn (props) {
+        return <div onClick={() => this.props.dispatch(editTransfer(props.original.id))}>
+                {props.value}
+            </div>;
+    }
     columns = [
         {
             Header: "Tidspunkt",
-            accessor: "timestamp",
+            id: "timestamp",
+            accessor: t => (t.timestamp || "").slice(0, 19),
+            Cell: props => this.renderColumn(props)
         },{
             Header: "Fra",
-            accessor: "fra"
+            accessor: "fra",
+            Cell: props => this.renderColumn(props)
         },{
             Header: "Til",
-            accessor: "til"
+            accessor: "til",
+            Cell: props => this.renderColumn(props)
         },{
             Header: "Beløp",
             id: "belop",
-            accessor: t => t.belop.toFixed(2)
+            accessor: t => t.belop.toFixed(2),
+            Cell: props => this.renderColumn(props)
         },{
             Header: "Kommentar",
             accessor: "kommentar",
+            Cell: props => this.renderColumn(props)
         }
     ];
 
     render() {
         return (
             <div className="transfers">
-                {this.renderSettlement(settlements(this.props.transfers.items))}
-                {this.props.transfers.isFetching}
+                {this.renderSettlement(settlements(this.props.items))}
                 <ReactTable 
-                    data={this.props.transfers.items} 
+                    data={this.props.items} 
                     columns={this.columns}
                     filterable
                     defaultSorted={[{id: "timestamp", desc: true}]}
+                    loading={this.props.isFetching}
                 />
-                
+                <EditTransferPopup
+                    transfer={this.props.selectedTransfer}
+                    onClose={() => this.props.dispatch(editTransfer(false))}
+                    putTransfer={(id, t) => this.props.dispatch(putTransfer(id, t))}
+                    deleteTransfer={t => this.props.dispatch(deleteTransfer(t))}
+                />
             </div>
         );
     }
 }
 
 const mapStateToProps = state => ({
-    transfers: state.transfers
+    ...state.transfers
   });
 
 export default connect(
