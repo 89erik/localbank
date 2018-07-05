@@ -32,12 +32,13 @@ def post_transfer():
 
 @app.route('/transfer/<transferId>', methods=['DELETE'])
 def delete_transfer(transferId):
-    res = db.transfers.delete_one({"_id": ObjectId(transferId)})
-    return no_content() if res.acknowledged else not_found(transferId)
+    db.transfers.find_one_and_update({"_id": ObjectId(transferId)}, {"$set": {"deleted": True}})
+    return no_content()
 
 @app.route('/transfers', methods=['GET'])
 def get_transfers():
-    transfers = db.transfers.find({})
+    not_deleted = {"deleted": {"$ne": True}}
+    transfers = db.transfers.find(not_deleted)
     dto = map(lambda transfer: {
         "id": str(transfer["_id"]),
         "fra": transfer["fra"],
