@@ -1,8 +1,17 @@
 .transfers {
-    .rt-tr-group {
-        cursor: pointer;
-        &:hover {
-            background-color: #eee;
+    .rt-table {
+        .rt-tr-group {
+            cursor: pointer;
+            &:hover {
+                background-color: #eee;
+            }
+        }
+
+        .timestamp {
+            max-width: 180px;
+        }
+        .konto,.belop {
+            max-width: 100px;
         }
     }
 }

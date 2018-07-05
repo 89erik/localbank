@@ -30,24 +30,34 @@ class Transfers extends Component {
         {
             Header: "Tidspunkt",
             id: "timestamp",
+            className: "timestamp",
+            headerClassName: "timestamp",
             accessor: t => (t.timestamp || "").slice(0, 19),
             Cell: props => this.renderColumn(props)
         },{
             Header: "Fra",
             accessor: "fra",
+            className: "konto",
+            headerClassName: "konto",
             Cell: props => this.renderColumn(props)
         },{
             Header: "Til",
             accessor: "til",
+            className: "konto",
+            headerClassName: "konto",
             Cell: props => this.renderColumn(props)
         },{
             Header: "Beløp",
             id: "belop",
+            className: "belop",
+            headerClassName: "belop",
             accessor: t => t.belop.toFixed(2),
             Cell: props => this.renderColumn(props)
         },{
             Header: "Kommentar",
             accessor: "kommentar",
+            className: "kommentar",
+            headerClassName: "kommentar",
             Cell: props => this.renderColumn(props)
         }
     ];
