@@ -18,16 +18,20 @@ def post_transfer():
             "fra": dto["fra"],
             "til": dto["til"],
             "belop": float(dto["belop"]),
-            "timestamp": datetime.now(),
             "kommentar": dto["kommentar"] if "kommentar" in dto else ""
     }
 
     if request.method == "POST":
+        transfer["timestamp"] = datetime.now()
         db.transfers.insert_one(transfer)
     elif request.method == "PUT":
-        res = db.transfers.replace_one({"_id": ObjectId(dto["id"])}, transfer)
-        if not (res.acknowledged and res.matched_count == 1): 
-            return not_found(dto["id"])
+        prevId = ObjectId(dto["id"])
+        prev = db.transfers.find_one({"_id": prevId})
+        transfer["timestamp"] = prev["timestamp"]
+        if any(prev[k] != transfer[k] for k in ["fra", "til", "belop", "kommentar"]):
+            insertion = db.transfers.insert_one(transfer)
+            db.transfers.find_one_and_update({"_id": prevId}, {"$set": {"replacedBy": insertion.inserted_id, "deleted": True}})
+
     return no_content()
 
 @app.route('/transfer/<transferId>', methods=['DELETE'])
@@ -47,12 +51,8 @@ def get_transfers():
         "timestamp": transfer["timestamp"].isoformat(),
         "kommentar": transfer["kommentar"]
         }, transfers)
-    return to_json(dto)
+    return json.dumps(dto)
     
-
-def to_json(page):
-    return json.dumps(json.loads(json_util.dumps(page)))
-
 def no_content():
     return ("", 204)
 
