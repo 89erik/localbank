@@ -8,4 +8,4 @@ export const GET = (url) => callApi(url, "GET");
 export const DELETE = (url) => callApi(url, "DELETE");
 
 const callApi = (path, method, body) =>
-    fetch("/api"+path, {method, body, headers: jsonHeader})
+    fetch("/api"+path, {method, body, headers: jsonHeader, credentials: "include"})
