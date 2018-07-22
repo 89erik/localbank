@@ -8,7 +8,10 @@ import {postTransfer} from '../actions';
 class CreateTransfer extends Component {
     render() {
         return (
-            <CreateTransferForm onSubmit={transfer => this.props.dispatch(postTransfer(transfer))}/>
+            <CreateTransferForm 
+                onSubmit={transfer => this.props.dispatch(postTransfer(transfer))}
+                kontoer={this.props.kontoer}
+            />
         );
     }
 }
@@ -20,7 +23,7 @@ const CreateTransferForm = reduxForm({
 
 
 const mapStateToProps = state => ({
-    state
+    kontoer: state.kontoer
   });
 
 export default connect(

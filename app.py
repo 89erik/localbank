@@ -44,7 +44,7 @@ def get_transfers():
     not_deleted = {"deleted": {"$ne": True}}
     transfers = db.transfers.find(not_deleted)
     dto = map(lambda transfer: {
-        "id": str(transfer["_id"]),
+        "id": id(transfer),
         "fra": transfer["fra"],
         "til": transfer["til"],
         "belop": transfer["belop"],
@@ -53,6 +53,21 @@ def get_transfers():
         }, transfers)
     return json.dumps(dto)
     
+@app.route('/kontoer', methods=['GET'])
+def get_kontoer():
+    dto = map(lambda konto: {
+        "navn": konto["navn"],
+        "felles": konto["felles"]
+    }, db.kontoer.find())
+    n_felleskontoer = len(filter(lambda konto: konto["felles"], dto))
+    if n_felleskontoer != 1:
+        raise Exception("%d felles-kontoer" % n_felleskontoer)
+    
+    return json.dumps(dto)
+
+def id(page):
+    return str(page["_id"])
+
 def no_content():
     return ("", 204)
 

@@ -5,13 +5,16 @@ import "react-table/react-table.css";
 
 import EditTransferPopup from './EditTransferPopup';
 
-import {fetchTransfers, editTransfer, putTransfer, deleteTransfer} from '../actions';
+import {fetchKontoer, fetchTransfers, editTransfer, putTransfer, deleteTransfer} from '../actions';
 import {settlements} from '../utils/debts';
 
 class Transfers extends Component {
     componentWillMount() {
-        if (this.props.needsFetch){
+        if (this.props.transfers.needsFetch){
             this.props.dispatch(fetchTransfers());
+        }
+        if (this.props.kontoer.needsFetch) {
+            this.props.dispatch(fetchKontoer());
         }
     }
 
@@ -65,19 +68,20 @@ class Transfers extends Component {
     render() {
         return (
             <div className="transfers">
-                {this.renderSettlement(settlements(this.props.items))}
+                {this.renderSettlement(settlements(this.props.transfers.items, this.props.kontoer.items))}
                 <ReactTable 
-                    data={this.props.items} 
+                    data={this.props.transfers.items} 
                     columns={this.columns}
                     filterable
                     defaultSorted={[{id: "timestamp", desc: true}]}
-                    loading={this.props.isFetching}
+                    loading={this.props.transfers.isFetching}
                 />
                 <EditTransferPopup
-                    transfer={this.props.selectedTransfer}
+                    transfer={this.props.transfers.selectedTransfer}
                     onClose={() => this.props.dispatch(editTransfer(false))}
                     putTransfer={(id, t) => this.props.dispatch(putTransfer(id, t))}
                     deleteTransfer={t => this.props.dispatch(deleteTransfer(t))}
+                    kontoer={this.props.kontoer}
                 />
             </div>
         );
@@ -85,7 +89,8 @@ class Transfers extends Component {
 }
 
 const mapStateToProps = state => ({
-    ...state.transfers
+    transfers: state.transfers,
+    kontoer: state.kontoer
   });
 
 export default connect(

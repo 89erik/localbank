@@ -13,6 +13,11 @@ export const DELETE_TRANSFER_REQUEST = "DELETE_TRANSFER_REQUEST";
 export const DELETE_TRANSFER_SUCCESS = "DELETE_TRANSFER_SUCCESS";
 export const DELETE_TRANSFER_FAILURE = "DELETE_TRANSFER_FAILURE";
 
+
+export const GET_KONTOER_REQUEST = "GET_KONTOER_REQUEST";
+export const GET_KONTOER_SUCCESS = "GET_KONTOER_SUCCESS";
+export const GET_KONTOER_FAILURE = "GET_KONTOER_FAILURE";
+
 export const EDIT_TRANSFER = "EDIT_TRANSFER";
 
 export const editTransfer = transferId => ({
@@ -72,3 +77,11 @@ export const deleteTransfer = transfer => dispatch => {
         });
 }
 
+export const fetchKontoer = () => dispatch => {
+    dispatch({type: GET_KONTOER_REQUEST});
+
+    GET("/kontoer")
+        .then(res => res.json())
+        .then(kontoer => dispatch({type: GET_KONTOER_SUCCESS, kontoer}))
+        .catch(error => dispatch({type: GET_KONTOER_FAILURE, error}));
+}

@@ -1,19 +1,27 @@
-export const settlements = (transfers) => {
-    const balance = {
-        erik: 0,
-        beate: 0,
-        felles: 0
-    };
+export const settlements = (transfers, kontoer) => {
+    if (!transfers.length || !kontoer.length) return undefined;
+
+    kontoer = kontoer.map(k => ({...k, saldo: 0}))
+    const kontoerMap = kontoer
+        .map(k => ({[k.navn]: k}))
+        .reduce((obj, partial) => ({...obj, ...partial}), {});
 
     for (let i=0; i<transfers.length; i++) {
         const transfer = transfers[i];
-        balance[transfer.fra] -= transfer.belop;
-        balance[transfer.til] += transfer.belop;
+        kontoerMap[transfer.fra].saldo -= transfer.belop;
+        kontoerMap[transfer.til].saldo += transfer.belop;
     }
-    
-    balance.erik += balance.felles / 2;
-    balance.beate += balance.felles / 2;
 
-    if (balance.beate < 0) return {fra: "erik", til: "beate", belop: balance.erik}
-    else if (balance.erik < 0) return {fra: "beate", til: "erik", belop: balance.beate}
+
+    const fellesSaldo = kontoer.find(k => k.felles).saldo;
+    const oppgjoersKontoer = Object.keys(kontoer)
+        .map(k => kontoer[k])
+        .filter(konto => !konto.felles);
+    if (oppgjoersKontoer.length !== 2) throw "støtter kun 2 oppgjørskontoer";
+
+    oppgjoersKontoer
+        .forEach(konto => konto.saldo += fellesSaldo / 2)
+
+    if (oppgjoersKontoer[0].saldo < 0) return {fra: oppgjoersKontoer[1].navn, til: oppgjoersKontoer[0].navn, belop: oppgjoersKontoer[1].saldo}
+    else if (oppgjoersKontoer[1].saldo < 0) return {fra: oppgjoersKontoer[0].navn, til: oppgjoersKontoer[1].navn, belop: oppgjoersKontoer[0].saldo}
 }

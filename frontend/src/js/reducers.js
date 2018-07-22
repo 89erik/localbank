@@ -7,6 +7,9 @@ import {
     GET_TRANSFERS_FAILURE,
     POST_TRANSFER_SUCCESS, 
     EDIT_TRANSFER,
+    GET_KONTOER_REQUEST,
+    GET_KONTOER_SUCCESS,
+    GET_KONTOER_FAILURE
 } from './actions';
 
 const transfers = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -45,7 +48,32 @@ const transfers = (state = {isFetching:false, needsFetch:true, items:[]}, action
     }
 };
 
+const kontoer = (state = {isFetching: false, needsFetch: true, items:[]}, action) => {
+    switch (action.type){
+        case GET_KONTOER_REQUEST:
+            return {
+                ...state,
+                needsFetch: false,
+                isFetching: true
+            };
+        case GET_KONTOER_FAILURE:
+            return {
+                ...state,
+                isFetching: false
+            };
+        case GET_KONTOER_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                items: action.kontoer
+            };
+        default:
+            return state;
+    }
+}
+
 export default combineReducers({
     transfers,
+    kontoer,
     form: formReducer
 });

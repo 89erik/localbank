@@ -17,14 +17,9 @@ const accountSelector = (field) => (
     />
 )
 
-const accounts = ["erik", "beate", "felles"];
-const accountsFra = accounts.map(a => ({
-    value: a,
-    label: "Fra " + a
-}));
-const accountsTil = accounts.map(a => ({
-    value: a,
-    label: "Til " + a
+const kontoOptions = (prefix, kontoer) => kontoer.map(a => ({
+    value: a.navn,
+    label: prefix + " " + a.navn
 }));
 
 const required = v => (v||"").length === 0 ? "Påkrevd" : undefined;
@@ -34,16 +29,18 @@ export default props => (
         <Field 
             name="fra" 
             component={accountSelector}
-            options={accountsFra}
+            options={kontoOptions("Fra", props.kontoer.items)}
             placeholder={"Fra konto"}
             validate={required}
+            disabled={props.kontoer.isFetching}
         />
         <Field 
             name="til" 
             component={accountSelector}
-            options={accountsTil}
+            options={kontoOptions("Til", props.kontoer.items)}
             placeholder={"Til konto"}
             validate={required}
+            disabled={props.kontoer.isFetching}
         />
         <Field 
             name="belop" 
