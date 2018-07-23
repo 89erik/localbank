@@ -25,7 +25,11 @@ class Transfers extends Component {
             </div>;
     }
     renderColumn (props) {
-        return <div onClick={() => this.props.dispatch(editTransfer(props.original.id))}>
+        const v = props.column.id === "belop" && props.original.valutta;
+        const title = v && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}`
+        return <div 
+                    title={title || null}
+                    onClick={() => this.props.dispatch(editTransfer(props.original.id))}>
                 {props.value}
             </div>;
     }
@@ -54,7 +58,7 @@ class Transfers extends Component {
             id: "belop",
             className: "belop",
             headerClassName: "belop",
-            accessor: t => t.belop.toFixed(2),
+            accessor: t => t.valutta ? `${t.valutta.belop.toFixed(2)} ${t.valutta.navn}` : t.belop.toFixed(2),
             Cell: props => this.renderColumn(props)
         },{
             Header: "Kommentar",

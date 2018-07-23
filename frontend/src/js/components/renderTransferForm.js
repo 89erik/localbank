@@ -51,6 +51,13 @@ export default props => (
             className="simple-field"
         />
         <Field 
+            name="valutta" 
+            placeholder="Valutta"
+            component="input" 
+            type="text"
+            className="simple-field"
+        />
+        <Field 
             name="kommentar" 
             placeholder="Kommentar"
             component="input" 

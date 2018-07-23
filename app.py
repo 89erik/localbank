@@ -8,30 +8,41 @@ from bson import json_util
 from bson.objectid import ObjectId
 from datetime import datetime
 
+import valutta
+
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
 
 @app.route('/transfer', methods=["POST", "PUT"])
 def post_transfer():
     dto = request.json
+
+    prev = db.transfers.find_one({"_id": ObjectId(dto["id"])}) if request.method == "PUT" else None
+
     transfer = {
             "fra": dto["fra"],
             "til": dto["til"],
             "belop": float(dto["belop"]),
-            "kommentar": dto["kommentar"] if "kommentar" in dto else ""
-    }
+            "kommentar": dto["kommentar"] if "kommentar" in dto else "",
+            "timestamp": prev["timestamp"] if prev else datetime.now()
+    }   
 
-    if request.method == "POST":
-        transfer["timestamp"] = datetime.now()
-        db.transfers.insert_one(transfer)
-    elif request.method == "PUT":
-        prevId = ObjectId(dto["id"])
-        prev = db.transfers.find_one({"_id": prevId})
-        transfer["timestamp"] = prev["timestamp"]
-        if any(prev[k] != transfer[k] for k in ["fra", "til", "belop", "kommentar"]):
-            insertion = db.transfers.insert_one(transfer)
-            db.transfers.find_one_and_update({"_id": prevId}, {"$set": {"replacedBy": insertion.inserted_id, "deleted": True}})
+    if "valutta" in dto and dto["valutta"]:
+        belop_NOK, kurs, kursTimestamp = valutta.konverter_til_NOK(transfer["belop"], dto["valutta"], transfer["timestamp"])
+        opprinnligBelop = transfer["belop"]
+        transfer["belop"] = belop_NOK
+        transfer["valutta"] = {
+            "belop": opprinnligBelop,
+            "navn": dto["valutta"],
+            "kurs": kurs,
+            "timestamp": kursTimestamp
+        }
+    
 
+    insertion = db.transfers.insert_one(transfer)
+    if prev:
+        db.transfers.find_one_and_update({"_id": prev["_id"]}, {"$set": {"replacedBy": insertion.inserted_id, "deleted": True}})
+    
     return no_content()
 
 @app.route('/transfer/<transferId>', methods=['DELETE'])
@@ -44,12 +55,18 @@ def get_transfers():
     not_deleted = {"deleted": {"$ne": True}}
     transfers = db.transfers.find(not_deleted)
     dto = map(lambda transfer: {
-        "id": id(transfer),
+        "id": str(transfer["_id"]),
         "fra": transfer["fra"],
         "til": transfer["til"],
         "belop": transfer["belop"],
         "timestamp": transfer["timestamp"].isoformat(),
-        "kommentar": transfer["kommentar"]
+        "kommentar": transfer["kommentar"],
+        "valutta": {
+            "timestamp": transfer["valutta"]["timestamp"],
+            "belop": transfer["valutta"]["belop"],
+            "navn": transfer["valutta"]["navn"],
+            "kurs": transfer["valutta"]["kurs"]
+        } if "valutta" in transfer else None
         }, transfers)
     return json.dumps(dto)
     
@@ -64,9 +81,6 @@ def get_kontoer():
         raise Exception("%d felles-kontoer" % n_felleskontoer)
     
     return json.dumps(dto)
-
-def id(page):
-    return str(page["_id"])
 
 def no_content():
     return ("", 204)

@@ -17,12 +17,24 @@ class EditTransferPopup extends React.Component {
 
         this.props.putTransfer(this.props.transfer.id, transfer);
     }
+    editableTransfer(){
+        if ((this.props.transfer || {}).valutta) {
+            return {
+                ...this.props.transfer,
+                belop: this.props.transfer.valutta.belop,
+                valutta: this.props.transfer.valutta.navn
+            }
+        } else {
+            return this.props.transfer
+        }
+
+    }
     render() {
         return (
             <Popup open={!!this.props.transfer} onClose={this.props.onClose}>
                 <EditTransferForm 
                     onSubmit={transfer => this.closeWith(() => this.save(transfer))}
-                    initialValues={this.props.transfer}
+                    initialValues={this.editableTransfer()}
                     kontoer={this.props.kontoer}
                     renderAmendments={() => [
                         <button 
