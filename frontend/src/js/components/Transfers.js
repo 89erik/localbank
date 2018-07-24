@@ -5,7 +5,14 @@ import "react-table/react-table.css";
 
 import EditTransferPopup from './EditTransferPopup';
 
-import {fetchKontoer, fetchTransfers, editTransfer, putTransfer, deleteTransfer} from '../actions';
+import {
+    fetchValuttaer,
+    fetchKontoer, 
+    fetchTransfers, 
+    editTransfer, 
+    putTransfer, 
+    deleteTransfer
+} from '../actions';
 import {settlements} from '../utils/debts';
 
 class Transfers extends Component {
@@ -15,6 +22,9 @@ class Transfers extends Component {
         }
         if (this.props.kontoer.needsFetch) {
             this.props.dispatch(fetchKontoer());
+        }
+        if (this.props.valuttaer.needsFetch) {
+            this.props.dispatch(fetchValuttaer());
         }
     }
 
@@ -86,6 +96,7 @@ class Transfers extends Component {
                     putTransfer={(id, t) => this.props.dispatch(putTransfer(id, t))}
                     deleteTransfer={t => this.props.dispatch(deleteTransfer(t))}
                     kontoer={this.props.kontoer}
+                    valuttaer={this.props.valuttaer}
                 />
             </div>
         );
@@ -94,7 +105,8 @@ class Transfers extends Component {
 
 const mapStateToProps = state => ({
     transfers: state.transfers,
-    kontoer: state.kontoer
+    kontoer: state.kontoer,
+    valuttaer: state.valuttaer
   });
 
 export default connect(

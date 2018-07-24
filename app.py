@@ -82,6 +82,15 @@ def get_kontoer():
     
     return json.dumps(dto)
 
+valuttaer = None
+@app.route('/valuttaer', methods=['GET'])
+@app.route('/valuttaer/<force>', methods=['GET'])
+def get_valuttaer(force = False):
+    global valuttaer
+    if not valuttaer or force:
+        valuttaer = valutta.alle_valuttaer()
+    return json.dumps(valuttaer)
+
 def no_content():
     return ("", 204)
 

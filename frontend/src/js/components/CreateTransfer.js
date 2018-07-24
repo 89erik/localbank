@@ -11,6 +11,7 @@ class CreateTransfer extends Component {
             <CreateTransferForm 
                 onSubmit={transfer => this.props.dispatch(postTransfer(transfer))}
                 kontoer={this.props.kontoer}
+                valuttaer={this.props.valuttaer}
             />
         );
     }
@@ -23,7 +24,8 @@ const CreateTransferForm = reduxForm({
 
 
 const mapStateToProps = state => ({
-    kontoer: state.kontoer
+    kontoer: state.kontoer,
+    valuttaer: state.valuttaer
   });
 
 export default connect(

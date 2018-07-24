@@ -36,6 +36,7 @@ class EditTransferPopup extends React.Component {
                     onSubmit={transfer => this.closeWith(() => this.save(transfer))}
                     initialValues={this.editableTransfer()}
                     kontoer={this.props.kontoer}
+                    valuttaer={this.props.valuttaer}
                     renderAmendments={() => [
                         <button 
                             key="delete"

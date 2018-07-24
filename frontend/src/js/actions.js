@@ -13,10 +13,13 @@ export const DELETE_TRANSFER_REQUEST = "DELETE_TRANSFER_REQUEST";
 export const DELETE_TRANSFER_SUCCESS = "DELETE_TRANSFER_SUCCESS";
 export const DELETE_TRANSFER_FAILURE = "DELETE_TRANSFER_FAILURE";
 
-
 export const GET_KONTOER_REQUEST = "GET_KONTOER_REQUEST";
 export const GET_KONTOER_SUCCESS = "GET_KONTOER_SUCCESS";
 export const GET_KONTOER_FAILURE = "GET_KONTOER_FAILURE";
+
+export const GET_VALUTTAER_REQUEST = "GET_VALUTTAER_REQUEST";
+export const GET_VALUTTAER_SUCCESS = "GET_VALUTTAER_SUCCESS";
+export const GET_VALUTTAER_FAILURE = "GET_VALUTTAER_FAILURE";
 
 export const EDIT_TRANSFER = "EDIT_TRANSFER";
 
@@ -40,7 +43,8 @@ export const postTransfer = (transfer) => dispatch => {
     transfer = {
         ...transfer,
         fra: transfer.fra.value,
-        til: transfer.til.value
+        til: transfer.til.value,
+        valutta: transfer.valutta && transfer.valutta.value || undefined
     }
     POST("/transfer", transfer)
         .then(() => {
@@ -84,4 +88,13 @@ export const fetchKontoer = () => dispatch => {
         .then(res => res.json())
         .then(kontoer => dispatch({type: GET_KONTOER_SUCCESS, kontoer}))
         .catch(error => dispatch({type: GET_KONTOER_FAILURE, error}));
+}
+
+export const fetchValuttaer = () => dispatch => {
+    dispatch({type: GET_VALUTTAER_REQUEST});
+
+    GET("/valuttaer")
+        .then(res => res.json())
+        .then(valuttaer => dispatch({type: GET_VALUTTAER_SUCCESS, valuttaer}))
+        .catch(error => dispatch({type: GET_VALUTTAER_FAILURE, error}));
 }

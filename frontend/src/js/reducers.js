@@ -9,7 +9,10 @@ import {
     EDIT_TRANSFER,
     GET_KONTOER_REQUEST,
     GET_KONTOER_SUCCESS,
-    GET_KONTOER_FAILURE
+    GET_KONTOER_FAILURE,
+    GET_VALUTTAER_REQUEST,
+    GET_VALUTTAER_SUCCESS,
+    GET_VALUTTAER_FAILURE
 } from './actions';
 
 const transfers = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -72,8 +75,33 @@ const kontoer = (state = {isFetching: false, needsFetch: true, items:[]}, action
     }
 }
 
+const valuttaer = (state = {isFetching: false, needsFetch: true, items:[]}, action) => {
+    switch (action.type){
+        case GET_VALUTTAER_REQUEST:
+            return {
+                ...state,
+                needsFetch: false,
+                isFetching: true
+            };
+        case GET_VALUTTAER_FAILURE:
+            return {
+                ...state,
+                isFetching: false
+            };
+        case GET_VALUTTAER_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                items: action.valuttaer
+            };
+        default:
+            return state;
+    }
+}
+
 export default combineReducers({
     transfers,
     kontoer,
+    valuttaer,
     form: formReducer
 });
