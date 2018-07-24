@@ -36,7 +36,7 @@ class Transfers extends Component {
     }
     renderColumn (props) {
         const v = props.column.id === "belop" && props.original.valutta;
-        const title = v && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}`
+        const title = v && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}, pluss 2% valuttapåslag fra banken`
         return <div 
                     title={title || null}
                     onClick={() => this.props.dispatch(editTransfer(props.original.id))}>

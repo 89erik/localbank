@@ -8,7 +8,7 @@ def konverter_til_NOK(verdi, valutta, timestamp):
     kurs = float(parsed["dataSets"][0]["series"]["0:0:0:0"]["observations"]["0"][0])
     timestamp = filter(lambda o: o["id"] == "TIME_PERIOD", parsed["structure"]["dimensions"]["observation"])[0]["values"][0]["name"]
 
-    return (verdi * (kurs / pow(10, eksponent)), kurs, timestamp)
+    return (verdi * ((kurs / pow(10, eksponent)) + 0.02), kurs, timestamp)
 
 def alle_valuttaer():
     raw = urllib2.urlopen("https://data.norges-bank.no/api/data/EXR/B..NOK.SP?lastNObservations=1&EndPeriod=2018-07-23&format=sdmx-json").read()
