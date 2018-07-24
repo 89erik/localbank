@@ -13,7 +13,7 @@ import {
     putTransfer, 
     deleteTransfer
 } from '../actions';
-import {settlements} from '../utils/debts';
+import {settlements} from '../utils/gjeld';
 
 class Transfers extends Component {
     componentWillMount() {
