@@ -44,7 +44,7 @@ export const postTransfer = (transfer) => dispatch => {
         ...transfer,
         fra: transfer.fra.value,
         til: transfer.til.value,
-        valutta: transfer.valutta && transfer.valutta.value || undefined
+        valutta: (transfer.valutta && transfer.valutta.value) || undefined
     }
     POST("/transfer", transfer)
         .then(() => {
@@ -56,13 +56,13 @@ export const postTransfer = (transfer) => dispatch => {
 
 export const putTransfer = (id, transfer) => dispatch => {
     dispatch({type: POST_TRANSFER_REQUEST});
-    console.log("put transfer", transfer);
 
     transfer = {
         ...transfer,
         id: id,
         fra: transfer.fra.value,
-        til: transfer.til.value
+        til: transfer.til.value,
+        valutta: transfer.valutta ? transfer.valutta.value || transfer.valutta : undefined
     }
     PUT("/transfer", transfer)
         .then(() => {
