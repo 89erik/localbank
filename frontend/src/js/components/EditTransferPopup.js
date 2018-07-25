@@ -1,6 +1,6 @@
 import React from 'react';
 import Popup from 'reactjs-popup';
-import { Field, reduxForm } from 'redux-form'
+import { reduxForm } from 'redux-form'
 import renderTransferForm from './renderTransferForm';
 
 class EditTransferPopup extends React.Component {
