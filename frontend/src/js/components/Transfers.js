@@ -13,7 +13,8 @@ import {
     putTransfer, 
     deleteTransfer
 } from '../actions';
-import {settlements} from '../utils/gjeld';
+import {beregnGjeld} from '../utils/gjeld';
+let seq=0;
 
 class Transfers extends Component {
     componentWillMount() {
@@ -28,12 +29,19 @@ class Transfers extends Component {
         }
     }
 
-    renderSettlement(settlement) {
-        if (!settlement) return null;
-        return <div>
-            {settlement.fra} skylder {settlement.til} {settlement.belop.toFixed(2)}
-            </div>;
+    renderGjeld(gjeld) {
+        return gjeld
+            .map(overforing => overforing.fra)
+            .reduce((unike, n) => unike.includes(n) ? unike : [...unike, n], [])
+            .map(navn => gjeld.filter(g => g.fra === navn))
+            .reduce((l, ll) => [...l, ...ll], [])
+            .map(overforing => (
+                <div key={seq++}>
+                    {overforing.fra} skylder {overforing.til} {overforing.belop.toFixed(2)}
+                </div>
+            ));
     }
+
     renderColumn (props) {
         const v = props.column.id === "belop" && props.original.valutta;
         const title = v && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}, pluss 2% valuttapåslag fra banken`
@@ -82,7 +90,10 @@ class Transfers extends Component {
     render() {
         return (
             <div className="transfers">
-                {this.renderSettlement(settlements(this.props.transfers.items, this.props.kontoer.items))}
+                <div className="gjeld">
+                    Gjeld (alt i NOK):
+                    {this.renderGjeld(beregnGjeld(this.props.transfers.items, this.props.kontoer.items))}
+                </div>
                 <ReactTable 
                     data={this.props.transfers.items} 
                     columns={this.columns}

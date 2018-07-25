@@ -1,27 +1,44 @@
-export const settlements = (transfers, kontoer) => {
-    if (!transfers.length || !kontoer.length) return undefined;
+export const beregnGjeld = (overforinger, kontoer) => {
+    if (!overforinger.length || !kontoer.length) return [];
 
     kontoer = kontoer.map(k => ({...k, saldo: 0}))
-    const kontoerMap = kontoer
-        .map(k => ({[k.navn]: k}))
-        .reduce((obj, partial) => ({...obj, ...partial}), {});
+    
+    // Beregner saldoer
+    {
+        const kontoerMap = kontoer
+            .map(k => ({[k.navn]: k}))
+            .reduce((obj, partial) => ({...obj, ...partial}), {});
 
-    for (let i=0; i<transfers.length; i++) {
-        const transfer = transfers[i];
-        kontoerMap[transfer.fra].saldo -= transfer.belop;
-        kontoerMap[transfer.til].saldo += transfer.belop;
+        for (let i=0; i<overforinger.length; i++) {
+            const overforing = overforinger[i];
+            kontoerMap[overforing.fra].saldo -= overforing.belop;
+            kontoerMap[overforing.til].saldo += overforing.belop;
+        }
     }
 
+    // Fordeler felleskonto
+    {
+        const felles = kontoer.find(k => k.felles);
+        kontoer = kontoer.filter(k => !k.felles);
+        kontoer.forEach(konto => konto.saldo += felles.saldo / kontoer.length)
+    }
 
-    const fellesSaldo = kontoer.find(k => k.felles).saldo;
-    const oppgjoersKontoer = Object.keys(kontoer)
-        .map(k => kontoer[k])
-        .filter(konto => !konto.felles);
-    if (oppgjoersKontoer.length !== 2) throw "støtter kun 2 oppgjørskontoer";
+    // Beregner gjeld
+    const gjeld = [];
+    while (kontoer.some(k => Math.abs(k.saldo) > 1)) {
+        const hoyest = kontoer.reduce((hoyest, k) => k.saldo > hoyest.saldo ? k : hoyest, {saldo: 0});
+        const lavest = kontoer.reduce((lavest, k) => k.saldo < lavest.saldo ? k : lavest, {saldo: 0});
+        const belop = Math.min(hoyest.saldo, Math.abs(lavest.saldo));
 
-    oppgjoersKontoer
-        .forEach(konto => konto.saldo += fellesSaldo / 2)
+        gjeld.push({
+            fra: hoyest.navn,
+            til: lavest.navn,
+            belop
+        });
 
-    if (oppgjoersKontoer[0].saldo < 0) return {fra: oppgjoersKontoer[1].navn, til: oppgjoersKontoer[0].navn, belop: oppgjoersKontoer[1].saldo}
-    else if (oppgjoersKontoer[1].saldo < 0) return {fra: oppgjoersKontoer[0].navn, til: oppgjoersKontoer[1].navn, belop: oppgjoersKontoer[0].saldo}
+        hoyest.saldo -= belop;
+        lavest.saldo += belop;
+    }
+
+    return gjeld;
 }
