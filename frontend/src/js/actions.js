@@ -2,17 +2,17 @@ import {reset} from 'redux-form'
 import {push} from 'connected-react-router';
 import {GET, POST, PUT, DELETE} from './utils/api'
 
-export const GET_TRANSFERS_REQUEST = "GET_TRANSFERS_REQUEST";
-export const GET_TRANSFERS_SUCCESS = "GET_TRANSFERS_SUCCESS";
-export const GET_TRANSFERS_FAILURE = "GET_TRANSFERS_FAILURE";
+export const GET_TRANSAKSJONER_REQUEST = "GET_TRANSAKSJONER_REQUEST";
+export const GET_TRANSAKSJONER_SUCCESS = "GET_TRANSAKSJONER_SUCCESS";
+export const GET_TRANSAKSJONER_FAILURE = "GET_TRANSAKSJONER_FAILURE";
 
-export const POST_TRANSFER_REQUEST = "POST_TRANSFER_REQUEST";
-export const POST_TRANSFER_SUCCESS = "POST_TRANSFER_SUCCESS";
-export const POST_TRANSFER_FAILURE = "POST_TRANSFER_FAILURE";
+export const POST_TRANSAKSJON_REQUEST = "POST_TRANSAKSJON_REQUEST";
+export const POST_TRANSAKSJON_SUCCESS = "POST_TRANSAKSJON_SUCCESS";
+export const POST_TRANSAKSJON_FAILURE = "POST_TRANSAKSJON_FAILURE";
 
-export const DELETE_TRANSFER_REQUEST = "DELETE_TRANSFER_REQUEST";
-export const DELETE_TRANSFER_SUCCESS = "DELETE_TRANSFER_SUCCESS";
-export const DELETE_TRANSFER_FAILURE = "DELETE_TRANSFER_FAILURE";
+export const DELETE_TRANSAKSJON_REQUEST = "DELETE_TRANSAKSJON_REQUEST";
+export const DELETE_TRANSAKSJON_SUCCESS = "DELETE_TRANSAKSJON_SUCCESS";
+export const DELETE_TRANSAKSJON_FAILURE = "DELETE_TRANSAKSJON_FAILURE";
 
 export const GET_KONTOER_REQUEST = "GET_KONTOER_REQUEST";
 export const GET_KONTOER_SUCCESS = "GET_KONTOER_SUCCESS";
@@ -26,67 +26,67 @@ export const GET_BRUKER_REQUEST = "GET_BRUKER_REQUEST";
 export const GET_BRUKER_SUCCESS = "GET_BRUKER_SUCCESS";
 export const GET_BRUKER_FAILURE = "GET_BRUKER_FAILURE";
 
-export const EDIT_TRANSFER = "EDIT_TRANSFER";
+export const SELECT_TRANSAKSJON = "SELECT_TRANSAKSJON";
 
-export const editTransfer = transferId => ({
-    type: EDIT_TRANSFER,
-    transferId
+export const selectTransaksjon = transaksjonId => ({
+    type: SELECT_TRANSAKSJON,
+    transaksjonId
 });
 
 const bank = getState => getState().router.location.pathname.slice(1);
 
-export const fetchTransfers = () => (dispatch, getState) => {
-    dispatch({type: GET_TRANSFERS_REQUEST});
+export const fetchTransaksjoner = () => (dispatch, getState) => {
+    dispatch({type: GET_TRANSAKSJONER_REQUEST});
 
-    GET("/transfers/" + bank(getState))
+    GET("/transaksjoner/" + bank(getState))
         .then(res => res.json())
-        .then(transfers => dispatch({type: GET_TRANSFERS_SUCCESS, transfers}))
-        .catch(error => dispatch({type: GET_TRANSFERS_FAILURE, error}));
+        .then(transaksjoner => dispatch({type: GET_TRANSAKSJONER_SUCCESS, transaksjoner}))
+        .catch(error => dispatch({type: GET_TRANSAKSJONER_FAILURE, error}));
 }
 
-export const postTransfer = transfer => (dispatch, getState) => {
-    dispatch({type: POST_TRANSFER_REQUEST});
+export const postTransaksjon = transaksjon => (dispatch, getState) => {
+    dispatch({type: POST_TRANSAKSJON_REQUEST});
 
-    transfer = {
+    transaksjon = {
         bank: bank(getState),
-        ...transfer,
-        fra: transfer.fra.value,
-        til: transfer.til.value,
-        valutta: (transfer.valutta && transfer.valutta.value) || undefined
+        ...transaksjon,
+        fra: transaksjon.fra.value,
+        til: transaksjon.til.value,
+        valutta: (transaksjon.valutta && transaksjon.valutta.value) || undefined
     }
-    POST("/transfer", transfer)
+    POST("/transaksjon", transaksjon)
         .then(() => {
-            dispatch(reset("createTransfer"));
-            dispatch({type: POST_TRANSFER_SUCCESS});
-            dispatch(fetchTransfers(bank))
+            dispatch(reset("createTransaksjon"));
+            dispatch({type: POST_TRANSAKSJON_SUCCESS});
+            dispatch(fetchTransaksjoner(bank))
         });
 }
 
-export const putTransfer = (id, transfer) => (dispatch, getState) => {
-    dispatch({type: POST_TRANSFER_REQUEST});
+export const putTransaksjon = (id, transaksjon) => (dispatch, getState) => {
+    dispatch({type: POST_TRANSAKSJON_REQUEST});
 
-    transfer = {
-        ...transfer,
+    transaksjon = {
+        ...transaksjon,
         id,
         bank: bank(getState),
-        fra: transfer.fra.value,
-        til: transfer.til.value,
-        valutta: transfer.valutta ? transfer.valutta.value || transfer.valutta : undefined
+        fra: transaksjon.fra.value,
+        til: transaksjon.til.value,
+        valutta: transaksjon.valutta ? transaksjon.valutta.value || transaksjon.valutta : undefined
     }
-    PUT("/transfer", transfer)
+    PUT("/transaksjon", transaksjon)
         .then(() => {
-            dispatch({type: POST_TRANSFER_SUCCESS});
-            dispatch(fetchTransfers(bank))
+            dispatch({type: POST_TRANSAKSJON_SUCCESS});
+            dispatch(fetchTransaksjoner(bank))
         });
 }
 
-export const deleteTransfer = transfer => dispatch => {
-    dispatch({type: DELETE_TRANSFER_REQUEST});
+export const deleteTransaksjon = transaksjon => dispatch => {
+    dispatch({type: DELETE_TRANSAKSJON_REQUEST});
 
-    DELETE("/transfer/" + transfer.id)
+    DELETE("/transaksjon/" + transaksjon.id)
         .then(() => {
-            dispatch({type: DELETE_TRANSFER_SUCCESS, transferId: transfer.id});
-            dispatch(fetchTransfers())
+            dispatch({type: DELETE_TRANSAKSJON_SUCCESS, transaksjonId: transaksjon.id});
+            dispatch(fetchTransaksjoner())
         });
 }
 

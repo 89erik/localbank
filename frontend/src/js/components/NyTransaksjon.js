@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form'
 
-import renderTransferForm from './renderTransferForm';
-import {postTransfer} from '../actions';
+import renderTransaksjonForm from './renderTransaksjonForm';
+import {postTransaksjon} from '../actions';
 
-class CreateTransfer extends Component {
+class NyTransaksjon extends Component {
     render() {
         return (
-            <CreateTransferForm 
-                onSubmit={transfer => this.props.dispatch(postTransfer(transfer))}
+            <NyTransaksjonForm 
+                onSubmit={transaksjon => this.props.dispatch(postTransaksjon(transaksjon))}
                 kontoer={this.props.kontoer}
                 valuttaer={this.props.valuttaer}
             />
@@ -18,9 +18,9 @@ class CreateTransfer extends Component {
 }
 
 
-const CreateTransferForm = reduxForm({
-    form: 'createTransfer'
-})(renderTransferForm);
+const NyTransaksjonForm = reduxForm({
+    form: 'nyTransaksjon'
+})(renderTransaksjonForm);
 
 
 const mapStateToProps = state => ({
@@ -31,4 +31,4 @@ const mapStateToProps = state => ({
 export default connect(
     mapStateToProps,
     dispatch => ({dispatch})
-)(CreateTransfer)
+)(NyTransaksjon)

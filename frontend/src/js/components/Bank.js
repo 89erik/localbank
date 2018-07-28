@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 
-import Transfers from './Transfers'
-import CreateTransfer from './CreateTransfer'
+import Transaksjoner from './Transaksjoner'
+import NyTransaksjon from './NyTransaksjon'
 
 class Bank extends Component {
 
     render() {
         return (
           <div className="bank">
-            <CreateTransfer />
-            <Transfers />
+            <NyTransaksjon />
+            <Transaksjoner />
           </div>
         );
     }

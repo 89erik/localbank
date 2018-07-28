@@ -3,22 +3,22 @@ import { connect } from 'react-redux';
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 
-import EditTransferPopup from './EditTransferPopup';
+import TransaksjonPopup from './TransaksjonPopup';
 
 import {
     fetchKontoer, 
-    fetchTransfers, 
-    editTransfer, 
-    putTransfer, 
-    deleteTransfer
+    fetchTransaksjoner, 
+    selectTransaksjon, 
+    putTransaksjon, 
+    deleteTransaksjon
 } from '../actions';
 import {beregnGjeld} from '../utils/gjeld';
 let seq=0;
 
-class Transfers extends Component {
+class Transaksjoner extends Component {
     componentWillMount() {
-        if (this.props.transfers.needsFetch){
-            this.props.dispatch(fetchTransfers());
+        if (this.props.transaksjoner.needsFetch){
+            this.props.dispatch(fetchTransaksjoner());
         }
         if (this.props.kontoer.needsFetch) {
             this.props.dispatch(fetchKontoer());
@@ -27,13 +27,13 @@ class Transfers extends Component {
 
     renderGjeld(gjeld) {
         return gjeld
-            .map(overforing => overforing.fra)
+            .map(transaksjon => transaksjon.fra)
             .reduce((unike, n) => unike.includes(n) ? unike : [...unike, n], [])
             .map(navn => gjeld.filter(g => g.fra === navn))
             .reduce((l, ll) => [...l, ...ll], [])
-            .map(overforing => (
+            .map(transaksjon => (
                 <div key={seq++}>
-                    {overforing.fra} skylder {overforing.til} {overforing.belop.toFixed(2)}
+                    {transaksjon.fra} skylder {transaksjon.til} {transaksjon.belop.toFixed(2)}
                 </div>
             ));
     }
@@ -43,7 +43,7 @@ class Transfers extends Component {
         const title = v && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}, pluss 2% valuttapåslag fra banken`
         return <div 
                     title={title || null}
-                    onClick={() => this.props.dispatch(editTransfer(props.original.id))}>
+                    onClick={() => this.props.dispatch(selectTransaksjon(props.original.id))}>
                 {props.value}
             </div>;
     }
@@ -85,23 +85,23 @@ class Transfers extends Component {
 
     render() {
         return (
-            <div className="transfers">
+            <div className="transaksjoner">
                 <div className="gjeld">
                     Gjeld (alt i NOK):
-                    {this.renderGjeld(beregnGjeld(this.props.transfers.items, this.props.kontoer.items))}
+                    {this.renderGjeld(beregnGjeld(this.props.transaksjoner.items, this.props.kontoer.items))}
                 </div>
                 <ReactTable 
-                    data={this.props.transfers.items} 
+                    data={this.props.transaksjoner.items} 
                     columns={this.columns}
                     filterable
                     defaultSorted={[{id: "timestamp", desc: true}]}
-                    loading={this.props.transfers.isFetching}
+                    loading={this.props.transaksjoner.isFetching}
                 />
-                <EditTransferPopup
-                    transfer={this.props.transfers.selectedTransfer}
-                    onClose={() => this.props.dispatch(editTransfer(false))}
-                    putTransfer={(id, t) => this.props.dispatch(putTransfer(id, t))}
-                    deleteTransfer={t => this.props.dispatch(deleteTransfer(t))}
+                <TransaksjonPopup
+                    transaksjon={this.props.transaksjoner.selectedTransaksjon}
+                    onClose={() => this.props.dispatch(selectTransaksjon(false))}
+                    putTransaksjon={(id, t) => this.props.dispatch(putTransaksjon(id, t))}
+                    deleteTransaksjon={t => this.props.dispatch(deleteTransaksjon(t))}
                     kontoer={this.props.kontoer}
                     valuttaer={this.props.valuttaer}
                 />
@@ -111,7 +111,7 @@ class Transfers extends Component {
 }
 
 const mapStateToProps = state => ({
-    transfers: state.transfers,
+    transaksjoner: state.transaksjoner,
     kontoer: state.kontoer,
     valuttaer: state.valuttaer
   });
@@ -119,4 +119,4 @@ const mapStateToProps = state => ({
 export default connect(
     mapStateToProps,
     dispatch => ({dispatch})
-)(Transfers)
+)(Transaksjoner)

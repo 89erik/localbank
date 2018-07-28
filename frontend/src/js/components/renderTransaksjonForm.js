@@ -2,7 +2,7 @@ import React from 'react';
 import { Field } from 'redux-form'
 import Select from 'react-select';
 import 'react-select/dist/react-select.css'
-import '../../style/transfers.css'
+import '../../style/transaksjoner.css'
 
 
 const renderSelector = (field) => (
@@ -31,7 +31,7 @@ const valuttaOptions = valuttaer => valuttaer.map(v => ({
 const required = v => (v||"").length === 0 ? "Påkrevd" : undefined;
 
 export default props => (
-    <form onSubmit={props.handleSubmit} className="transfer-form">
+    <form onSubmit={props.handleSubmit} className="transaksjon-form">
         <Field 
             name="fra" 
             component={renderSelector}

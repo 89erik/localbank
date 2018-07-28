@@ -2,11 +2,11 @@ import {combineReducers} from 'redux';
 import { reducer as formReducer } from 'redux-form'
 
 import {
-    GET_TRANSFERS_REQUEST, 
-    GET_TRANSFERS_SUCCESS, 
-    GET_TRANSFERS_FAILURE,
-    POST_TRANSFER_SUCCESS, 
-    EDIT_TRANSFER,
+    GET_TRANSAKSJONER_REQUEST, 
+    GET_TRANSAKSJONER_SUCCESS, 
+    GET_TRANSAKSJONER_FAILURE,
+    POST_TRANSAKSJON_SUCCESS, 
+    SELECT_TRANSAKSJON,
     GET_KONTOER_REQUEST,
     GET_KONTOER_SUCCESS,
     GET_KONTOER_FAILURE,
@@ -18,36 +18,36 @@ import {
     GET_BRUKER_FAILURE
 } from './actions';
 
-const transfers = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
+const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
     switch (action.type){
-        case GET_TRANSFERS_REQUEST:
+        case GET_TRANSAKSJONER_REQUEST:
             return {
                 ...state,
                 isFetching: true,
                 needsFetch: false
             };
-        case GET_TRANSFERS_FAILURE:
+        case GET_TRANSAKSJONER_FAILURE:
             return {
                 ...state,
                 isFetching: false,
                 needsFetch: false
             };
-        case GET_TRANSFERS_SUCCESS:
+        case GET_TRANSAKSJONER_SUCCESS:
             return {
                 ...state,
                 isFetching: false,
                 needsFetch: false,
-                items: action.transfers
+                items: action.transaksjoner
             };
-        case POST_TRANSFER_SUCCESS:
+        case POST_TRANSAKSJON_SUCCESS:
             return {
                 ...state,
                 needsFetch: true
             }
-        case EDIT_TRANSFER:
+        case SELECT_TRANSAKSJON:
             return {
                 ...state,
-                selectedTransfer: action.transferId && state.items.find(t => t.id === action.transferId)
+                selectedTransaksjon: action.transaksjonId && state.items.find(t => t.id === action.transaksjonId)
             };
         default:
             return state;
@@ -127,7 +127,7 @@ const bruker = (state = {isFetching: false, needsFetch: true}, action) => {
 }
 export default combineReducers({
     bruker,
-    transfers,
+    transaksjoner,
     kontoer,
     valuttaer,
     form: formReducer

@@ -1,5 +1,5 @@
-export const beregnGjeld = (overforinger, kontoer) => {
-    if (!overforinger.length || !kontoer.length) return [];
+export const beregnGjeld = (transaksjoner, kontoer) => {
+    if (!transaksjoner.length || !kontoer.length) return [];
 
     kontoer = kontoer.map(k => ({...k, saldo: 0}))
     
@@ -9,10 +9,10 @@ export const beregnGjeld = (overforinger, kontoer) => {
             .map(k => ({[k.navn]: k}))
             .reduce((obj, partial) => ({...obj, ...partial}), {});
 
-        for (let i=0; i<overforinger.length; i++) {
-            const overforing = overforinger[i];
-            kontoerMap[overforing.fra].saldo -= overforing.belop;
-            kontoerMap[overforing.til].saldo += overforing.belop;
+        for (let i=0; i<transaksjoner.length; i++) {
+            const transaksjon = transaksjoner[i];
+            kontoerMap[transaksjon.fra].saldo -= transaksjon.belop;
+            kontoerMap[transaksjon.til].saldo += transaksjon.belop;
         }
     }
 

@@ -13,16 +13,16 @@ import valutta
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
 
-@app.route('/transfer', methods=["POST", "PUT"])
-def post_transfer():
+@app.route('/transaksjon', methods=["POST", "PUT"])
+def post_transaksjon():
     dto = request.json
     if not har_tilgang_til_bank(dto["bank"]):
         return forbidden("Du har ikke tilgang til bank '%s'" % dto["bank"])
-    prev = db.transfers.find_one({"_id": ObjectId(dto["id"])}) if request.method == "PUT" else None
+    prev = db.transaksjoner.find_one({"_id": ObjectId(dto["id"])}) if request.method == "PUT" else None
     if prev and prev["bank"] != dto["bank"]:
-        raise Exception("Klienten gjorde PUT transfer/%s på id=%s, men denne IDen har bank=%s" % (dto["bank"], dto["id"], prev["bank"]))
+        raise Exception("Klienten gjorde PUT transaksjon/%s på id=%s, men denne IDen har bank=%s" % (dto["bank"], dto["id"], prev["bank"]))
 
-    transfer = {
+    transaksjon = {
             "bank": dto["bank"],
             "fra": dto["fra"],
             "til": dto["til"],
@@ -32,51 +32,51 @@ def post_transfer():
     }
 
     if "valutta" in dto and dto["valutta"]:
-        belop_NOK, kurs, kursTimestamp = valutta.konverter_til_NOK(transfer["belop"], dto["valutta"], transfer["timestamp"])
-        opprinnligBelop = transfer["belop"]
-        transfer["belop"] = belop_NOK
-        transfer["valutta"] = {
+        belop_NOK, kurs, kursTimestamp = valutta.konverter_til_NOK(transaksjon["belop"], dto["valutta"], transaksjon["timestamp"])
+        opprinnligBelop = transaksjon["belop"]
+        transaksjon["belop"] = belop_NOK
+        transaksjon["valutta"] = {
             "belop": opprinnligBelop,
             "navn": dto["valutta"],
             "kurs": kurs,
             "timestamp": kursTimestamp
         }
 
-    insertion = db.transfers.insert_one(transfer)
+    insertion = db.transaksjoner.insert_one(transaksjon)
     if prev:
-        db.transfers.find_one_and_update({"_id": prev["_id"]}, {"$set": {"replacedBy": insertion.inserted_id, "deleted": True}})
+        db.transaksjoner.find_one_and_update({"_id": prev["_id"]}, {"$set": {"replacedBy": insertion.inserted_id, "deleted": True}})
     
     return no_content()
 
-@app.route('/transfer/<transferId>', methods=['DELETE'])
-def delete_transfer(transferId):
-    bank = db.transfers.find_one({"_id": ObjectId(transferId)})["bank"]
+@app.route('/transaksjon/<transaksjonId>', methods=['DELETE'])
+def delete_transaksjon(transaksjonId):
+    bank = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})["bank"]
     if not har_tilgang_til_bank(bank):
         return forbidden("Du har ikke tilgang til bank '%s'" % bank)
         
-    db.transfers.find_one_and_update({"_id": ObjectId(transferId)}, {"$set": {"deleted": True}})
+    db.transaksjoner.find_one_and_update({"_id": ObjectId(transaksjonId)}, {"$set": {"deleted": True}})
     return no_content()
 
-@app.route('/transfers/<bank>', methods=['GET'])
-def get_transfers(bank):
+@app.route('/transaksjoner/<bank>', methods=['GET'])
+def get_transaksjoner(bank):
     if not har_tilgang_til_bank(bank):
         return forbidden("Du har ikke tilgang til bank '%s'" % bank)
 
-    transfers = db.transfers.find({"deleted": {"$ne": True}, "bank": bank})
-    dto = map(lambda transfer: {
-        "id": str(transfer["_id"]),
-        "fra": transfer["fra"],
-        "til": transfer["til"],
-        "belop": transfer["belop"],
-        "timestamp": transfer["timestamp"].isoformat(),
-        "kommentar": transfer["kommentar"],
+    transaksjoner = db.transaksjoner.find({"deleted": {"$ne": True}, "bank": bank})
+    dto = map(lambda transaksjon: {
+        "id": str(transaksjon["_id"]),
+        "fra": transaksjon["fra"],
+        "til": transaksjon["til"],
+        "belop": transaksjon["belop"],
+        "timestamp": transaksjon["timestamp"].isoformat(),
+        "kommentar": transaksjon["kommentar"],
         "valutta": {
-            "timestamp": transfer["valutta"]["timestamp"],
-            "belop": transfer["valutta"]["belop"],
-            "navn": transfer["valutta"]["navn"],
-            "kurs": transfer["valutta"]["kurs"]
-        } if "valutta" in transfer else None
-        }, transfers)
+            "timestamp": transaksjon["valutta"]["timestamp"],
+            "belop": transaksjon["valutta"]["belop"],
+            "navn": transaksjon["valutta"]["navn"],
+            "kurs": transaksjon["valutta"]["kurs"]
+        } if "valutta" in transaksjon else None
+        }, transaksjoner)
     return json.dumps(dto)
     
 @app.route('/kontoer/<bank>', methods=['GET'])
