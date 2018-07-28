@@ -16,11 +16,15 @@ class Router extends Component {
         }
     }
 
+    renderLoading() {
+        return <img src="loading.gif" className="loading-gif" alt="Laster..."/>
+    }
+
     render() {
         return (
           <div>
             <Switch>
-                <Route exact path="/" render={()=>(<div>Laster</div>)} />
+                <Route exact path="/" render={this.renderLoading} />
                 <Route path="/:bankId" component={Bank} />
             </Switch>
           </div>
