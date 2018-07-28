@@ -1,4 +1,5 @@
 import {reset} from 'redux-form'
+import {push} from 'connected-react-router';
 import {GET, POST, PUT, DELETE} from './utils/api'
 
 export const GET_TRANSFERS_REQUEST = "GET_TRANSFERS_REQUEST";
@@ -21,6 +22,10 @@ export const GET_VALUTTAER_REQUEST = "GET_VALUTTAER_REQUEST";
 export const GET_VALUTTAER_SUCCESS = "GET_VALUTTAER_SUCCESS";
 export const GET_VALUTTAER_FAILURE = "GET_VALUTTAER_FAILURE";
 
+export const GET_BRUKER_REQUEST = "GET_BRUKER_REQUEST";
+export const GET_BRUKER_SUCCESS = "GET_BRUKER_SUCCESS";
+export const GET_BRUKER_FAILURE = "GET_BRUKER_FAILURE";
+
 export const EDIT_TRANSFER = "EDIT_TRANSFER";
 
 export const editTransfer = transferId => ({
@@ -28,19 +33,22 @@ export const editTransfer = transferId => ({
     transferId
 });
 
-export const fetchTransfers = () => dispatch => {
+const bank = getState => getState().router.location.pathname.slice(1);
+
+export const fetchTransfers = () => (dispatch, getState) => {
     dispatch({type: GET_TRANSFERS_REQUEST});
 
-    GET("/transfers")
+    GET("/transfers/" + bank(getState))
         .then(res => res.json())
         .then(transfers => dispatch({type: GET_TRANSFERS_SUCCESS, transfers}))
         .catch(error => dispatch({type: GET_TRANSFERS_FAILURE, error}));
 }
 
-export const postTransfer = (transfer) => dispatch => {
+export const postTransfer = transfer => (dispatch, getState) => {
     dispatch({type: POST_TRANSFER_REQUEST});
 
     transfer = {
+        bank: bank(getState),
         ...transfer,
         fra: transfer.fra.value,
         til: transfer.til.value,
@@ -50,16 +58,17 @@ export const postTransfer = (transfer) => dispatch => {
         .then(() => {
             dispatch(reset("createTransfer"));
             dispatch({type: POST_TRANSFER_SUCCESS});
-            dispatch(fetchTransfers())
+            dispatch(fetchTransfers(bank))
         });
 }
 
-export const putTransfer = (id, transfer) => dispatch => {
+export const putTransfer = (id, transfer) => (dispatch, getState) => {
     dispatch({type: POST_TRANSFER_REQUEST});
 
     transfer = {
         ...transfer,
-        id: id,
+        id,
+        bank: bank(getState),
         fra: transfer.fra.value,
         til: transfer.til.value,
         valutta: transfer.valutta ? transfer.valutta.value || transfer.valutta : undefined
@@ -67,7 +76,7 @@ export const putTransfer = (id, transfer) => dispatch => {
     PUT("/transfer", transfer)
         .then(() => {
             dispatch({type: POST_TRANSFER_SUCCESS});
-            dispatch(fetchTransfers())
+            dispatch(fetchTransfers(bank))
         });
 }
 
@@ -81,10 +90,10 @@ export const deleteTransfer = transfer => dispatch => {
         });
 }
 
-export const fetchKontoer = () => dispatch => {
+export const fetchKontoer = () => (dispatch, getState) => {
     dispatch({type: GET_KONTOER_REQUEST});
 
-    GET("/kontoer")
+    GET("/kontoer/" + bank(getState))
         .then(res => res.json())
         .then(kontoer => dispatch({type: GET_KONTOER_SUCCESS, kontoer}))
         .catch(error => dispatch({type: GET_KONTOER_FAILURE, error}));
@@ -97,4 +106,18 @@ export const fetchValuttaer = () => dispatch => {
         .then(res => res.json())
         .then(valuttaer => dispatch({type: GET_VALUTTAER_SUCCESS, valuttaer}))
         .catch(error => dispatch({type: GET_VALUTTAER_FAILURE, error}));
+}
+
+export const fetchBruker = () => (dispatch, getState) => {
+    dispatch({type: GET_BRUKER_REQUEST});
+
+    GET("/bruker")
+        .then(res => res.json())
+        .then(bruker => {
+            dispatch({type: GET_BRUKER_SUCCESS, bruker});
+            if (getState().router.location.pathname === "/") {
+                dispatch(push("/" + bruker.defaultBank));
+            }
+        })
+        .catch(error => dispatch({type: GET_BRUKER_FAILURE, error}));
 }

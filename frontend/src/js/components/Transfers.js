@@ -6,7 +6,6 @@ import "react-table/react-table.css";
 import EditTransferPopup from './EditTransferPopup';
 
 import {
-    fetchValuttaer,
     fetchKontoer, 
     fetchTransfers, 
     editTransfer, 
@@ -23,9 +22,6 @@ class Transfers extends Component {
         }
         if (this.props.kontoer.needsFetch) {
             this.props.dispatch(fetchKontoer());
-        }
-        if (this.props.valuttaer.needsFetch) {
-            this.props.dispatch(fetchValuttaer());
         }
     }
 

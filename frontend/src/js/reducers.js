@@ -12,7 +12,10 @@ import {
     GET_KONTOER_FAILURE,
     GET_VALUTTAER_REQUEST,
     GET_VALUTTAER_SUCCESS,
-    GET_VALUTTAER_FAILURE
+    GET_VALUTTAER_FAILURE,
+    GET_BRUKER_REQUEST,
+    GET_BRUKER_SUCCESS,
+    GET_BRUKER_FAILURE
 } from './actions';
 
 const transfers = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -99,7 +102,31 @@ const valuttaer = (state = {isFetching: false, needsFetch: true, items:[]}, acti
     }
 }
 
+const bruker = (state = {isFetching: false, needsFetch: true}, action) => {
+    switch (action.type){
+        case GET_BRUKER_REQUEST:
+            return {
+                ...state,
+                needsFetch: false,
+                isFetching: true
+            };
+        case GET_BRUKER_FAILURE:
+            return {
+                ...state,
+                isFetching: false
+            };
+        case GET_BRUKER_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                defaultBank: action.bruker.defaultBank
+            };
+        default:
+            return state;
+    }
+}
 export default combineReducers({
+    bruker,
     transfers,
     kontoer,
     valuttaer,
