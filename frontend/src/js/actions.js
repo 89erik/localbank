@@ -56,7 +56,7 @@ export const postTransaksjon = transaksjon => (dispatch, getState) => {
     }
     POST("/transaksjon", transaksjon)
         .then(() => {
-            dispatch(reset("createTransaksjon"));
+            dispatch(reset("nyTransaksjon"));
             dispatch({type: POST_TRANSAKSJON_SUCCESS});
             dispatch(fetchTransaksjoner(bank))
         });
