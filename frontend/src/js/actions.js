@@ -1,6 +1,7 @@
 import {reset} from 'redux-form'
 import {push} from 'connected-react-router';
-import {GET, POST, PUT, DELETE} from './utils/api'
+import {GET, POST, PUT, DELETE} from './utils/api';
+import {withoutTimezone} from './utils/date';
 
 export const GET_TRANSAKSJONER_REQUEST = "GET_TRANSAKSJONER_REQUEST";
 export const GET_TRANSAKSJONER_SUCCESS = "GET_TRANSAKSJONER_SUCCESS";
@@ -52,6 +53,7 @@ export const postTransaksjon = transaksjon => (dispatch, getState) => {
         ...transaksjon,
         fra: transaksjon.fra.value,
         til: transaksjon.til.value,
+        timestamp: withoutTimezone(transaksjon.timestamp),
         valutta: (transaksjon.valutta && transaksjon.valutta.value) || undefined
     }
     POST("/transaksjon", transaksjon)
@@ -71,6 +73,7 @@ export const putTransaksjon = (id, transaksjon) => (dispatch, getState) => {
         bank: bank(getState),
         fra: transaksjon.fra.value,
         til: transaksjon.til.value,
+        timestamp: withoutTimezone(transaksjon.timestamp),
         valutta: transaksjon.valutta ? transaksjon.valutta.value || transaksjon.valutta : undefined
     }
     PUT("/transaksjon", transaksjon)

@@ -37,7 +37,10 @@ const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, ac
                 ...state,
                 isFetching: false,
                 needsFetch: false,
-                items: action.transaksjoner
+                items: action.transaksjoner.map(t => ({
+                    ...t,
+                    timestamp: new Date(t.timestamp)
+                }))
             };
         case POST_TRANSAKSJON_SUCCESS:
             return {

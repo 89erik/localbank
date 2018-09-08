@@ -4,6 +4,7 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 
 import TransaksjonPopup from './TransaksjonPopup';
+import {toISOStringInCurrentTimezone} from '../utils/date';
 
 import {
     fetchKontoer, 
@@ -49,11 +50,11 @@ class Transaksjoner extends Component {
     }
     columns = [
         {
-            Header: "Tidspunkt",
+            Header: "Dato",
             id: "timestamp",
             className: "timestamp",
             headerClassName: "timestamp",
-            accessor: t => (t.timestamp || "").slice(0, 19),
+            accessor: t => toISOStringInCurrentTimezone(t.timestamp).slice(0,10),
             Cell: props => this.renderColumn(props)
         },{
             Header: "Fra",

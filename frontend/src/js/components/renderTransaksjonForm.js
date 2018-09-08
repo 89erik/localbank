@@ -1,5 +1,6 @@
 import React from 'react';
 import { Field } from 'redux-form'
+import DatePicker from 'react-date-picker'
 import Select from 'react-select';
 import 'react-select/dist/react-select.css'
 import '../../style/transaksjoner.css'
@@ -16,6 +17,15 @@ const renderSelector = (field) => (
         autoBlur
     />
 )
+
+const renderDatePicker = (field) => (
+    <DatePicker
+        onChange={field.input.onChange}
+        value={field.input.value}
+        locale="nb-NO"
+        clearIcon={null}
+    />
+);
 
 const kontoOptions = (prefix, kontoer) => kontoer.map(a => ({
     value: a.navn,
@@ -63,6 +73,10 @@ export default props => (
             placeholder={"NOK - Norske kroner"}
             clearable={true}
             disabled={props.valuttaer.isFetching}
+        />
+        <Field
+            name="timestamp"
+            component={renderDatePicker}
         />
         <Field 
             name="kommentar" 

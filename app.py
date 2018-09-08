@@ -7,6 +7,7 @@ from pymongo import MongoClient
 from bson import json_util
 from bson.objectid import ObjectId
 from datetime import datetime
+import dateutil.parser
 
 import valutta
 
@@ -28,7 +29,7 @@ def post_transaksjon():
             "til": dto["til"],
             "belop": float(dto["belop"]),
             "kommentar": dto["kommentar"] if "kommentar" in dto else "",
-            "timestamp": prev["timestamp"] if prev else datetime.now()
+            "timestamp": dateutil.parser.parse(dto["timestamp"]) # todo prev
     }
 
     if "valutta" in dto and dto["valutta"]:
@@ -132,5 +133,5 @@ def forbidden(msg):
     return (msg, 403)
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0', port=5001)
+    app.run(debug=True,host='0.0.0.0', port=5000)
 

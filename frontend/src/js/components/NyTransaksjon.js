@@ -12,6 +12,7 @@ class NyTransaksjon extends Component {
                 onSubmit={transaksjon => this.props.dispatch(postTransaksjon(transaksjon))}
                 kontoer={this.props.kontoer}
                 valuttaer={this.props.valuttaer}
+                initialValues={{timestamp: new Date()}}
             />
         );
     }
