@@ -39,7 +39,7 @@ const bank = getState => getState().router.location.pathname.slice(1);
 export const fetchTransaksjoner = () => (dispatch, getState) => {
     dispatch({type: GET_TRANSAKSJONER_REQUEST});
 
-    GET("/transaksjoner/" + bank(getState))
+    GET(`/${bank(getState)}/transaksjoner`)
         .then(res => res.json())
         .then(transaksjoner => dispatch({type: GET_TRANSAKSJONER_SUCCESS, transaksjoner}))
         .catch(error => dispatch({type: GET_TRANSAKSJONER_FAILURE, error}));
@@ -49,14 +49,13 @@ export const postTransaksjon = transaksjon => (dispatch, getState) => {
     dispatch({type: POST_TRANSAKSJON_REQUEST});
 
     transaksjon = {
-        bank: bank(getState),
         ...transaksjon,
         fra: transaksjon.fra.value,
         til: transaksjon.til.value,
         timestamp: withoutTimezone(transaksjon.timestamp),
         valutta: (transaksjon.valutta && transaksjon.valutta.value) || undefined
     }
-    POST("/transaksjon", transaksjon)
+    POST(`/${bank(getState)}/transaksjon`, transaksjon)
         .then(() => {
             dispatch(reset("nyTransaksjon"));
             dispatch({type: POST_TRANSAKSJON_SUCCESS});
@@ -70,13 +69,12 @@ export const putTransaksjon = (id, transaksjon) => (dispatch, getState) => {
     transaksjon = {
         ...transaksjon,
         id,
-        bank: bank(getState),
         fra: transaksjon.fra.value,
         til: transaksjon.til.value,
         timestamp: withoutTimezone(transaksjon.timestamp),
         valutta: transaksjon.valutta ? transaksjon.valutta.value || transaksjon.valutta : undefined
     }
-    PUT("/transaksjon", transaksjon)
+    PUT(`/${bank(getState)}/transaksjon`, transaksjon)
         .then(() => {
             dispatch({type: POST_TRANSAKSJON_SUCCESS});
             dispatch(fetchTransaksjoner(bank))
@@ -96,7 +94,7 @@ export const deleteTransaksjon = transaksjon => dispatch => {
 export const fetchKontoer = () => (dispatch, getState) => {
     dispatch({type: GET_KONTOER_REQUEST});
 
-    GET("/kontoer/" + bank(getState))
+    GET(`/${bank(getState)}/kontoer`)
         .then(res => res.json())
         .then(kontoer => dispatch({type: GET_KONTOER_SUCCESS, kontoer}))
         .catch(error => dispatch({type: GET_KONTOER_FAILURE, error}));

@@ -14,17 +14,17 @@ import valutta
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
 
-@app.route('/transaksjon', methods=["POST", "PUT"])
-def post_transaksjon():
+@app.route('/<bank>/transaksjon', methods=["POST", "PUT"])
+def post_transaksjon(bank):
     dto = request.json
-    if not har_tilgang_til_bank(dto["bank"]):
-        return forbidden("Du har ikke tilgang til bank '%s'" % dto["bank"])
+    if not har_tilgang_til_bank(bank):
+        return forbidden("Du har ikke tilgang til bank '%s'" % bank)
     prev = db.transaksjoner.find_one({"_id": ObjectId(dto["id"])}) if request.method == "PUT" else None
-    if prev and prev["bank"] != dto["bank"]:
-        raise Exception("Klienten gjorde PUT transaksjon/%s på id=%s, men denne IDen har bank=%s" % (dto["bank"], dto["id"], prev["bank"]))
+    if prev and prev["bank"] != bank:
+        raise Exception("Klienten gjorde PUT transaksjon/%s på id=%s, men denne IDen har bank=%s" % (bank, dto["id"], prev["bank"]))
 
     transaksjon = {
-            "bank": dto["bank"],
+            "bank": bank,
             "fra": dto["fra"],
             "til": dto["til"],
             "belop": float(dto["belop"]),
@@ -58,7 +58,7 @@ def delete_transaksjon(transaksjonId):
     db.transaksjoner.find_one_and_update({"_id": ObjectId(transaksjonId)}, {"$set": {"deleted": True}})
     return no_content()
 
-@app.route('/transaksjoner/<bank>', methods=['GET'])
+@app.route('/<bank>/transaksjoner', methods=['GET'])
 def get_transaksjoner(bank):
     if not har_tilgang_til_bank(bank):
         return forbidden("Du har ikke tilgang til bank '%s'" % bank)
@@ -80,7 +80,7 @@ def get_transaksjoner(bank):
         }, transaksjoner)
     return json.dumps(dto)
     
-@app.route('/kontoer/<bank>', methods=['GET'])
+@app.route('/<bank>/kontoer', methods=['GET'])
 def get_kontoer(bank):
     if not har_tilgang_til_bank(bank):
         return forbidden("Du har ikke tilgang til bank '%s'" % bank)
