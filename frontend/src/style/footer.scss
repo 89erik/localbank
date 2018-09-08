@@ -1,0 +1,13 @@
+footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+    padding-right: 4px;
+    a {
+        margin-left: 3px;
+        img{
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
