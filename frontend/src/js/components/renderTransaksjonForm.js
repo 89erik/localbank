@@ -63,6 +63,7 @@ export default props => (
             placeholder="Beløp"
             component="input" 
             type="number"
+            autoComplete="off"
             validate={required}
             className="simple-field"
         />
@@ -82,6 +83,7 @@ export default props => (
             name="kommentar" 
             placeholder="Kommentar"
             component="input" 
+            autoComplete="off"
             type="text"
             className="simple-field"
         />
