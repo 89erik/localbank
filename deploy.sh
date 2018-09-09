@@ -2,8 +2,9 @@
 
 cd "$(dirname "$0")"
 
-scp *.py pi2:/var/www/api/
-scp localbank.wsgi pi2:/var/www/api/
+scp *.py localbank.wsgi requirements.txt pi2:/var/www/api/
+ssh pi2 "ls /var/www/api/venv &> /dev/null || virtualenv /var/www/api/venv"
+ssh pi2 "cd /var/www/api && . venv/bin/activate && pip install -r requirements.txt"
 
 cd frontend
 npm run build
