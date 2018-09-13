@@ -45,7 +45,7 @@ export const postTransaksjon = transaksjon => (dispatch, getState) => {
         fra: transaksjon.fra.value,
         til: transaksjon.til.value,
         timestamp: withoutTimezone(transaksjon.timestamp),
-        valutta: (transaksjon.valutta && transaksjon.valutta.value) || undefined
+        valutta: transaksjon.valutta.value
     }
     POST(`/${bank(getState)}/transaksjon`, transaksjon)
         .then(() => {
@@ -64,7 +64,7 @@ export const putTransaksjon = (id, transaksjon) => (dispatch, getState) => {
         fra: transaksjon.fra.value,
         til: transaksjon.til.value,
         timestamp: withoutTimezone(transaksjon.timestamp),
-        valutta: transaksjon.valutta ? transaksjon.valutta.value || transaksjon.valutta : undefined
+        valutta: transaksjon.valutta.value
     }
     PUT(`/${bank(getState)}/transaksjon`, transaksjon)
         .then(() => {

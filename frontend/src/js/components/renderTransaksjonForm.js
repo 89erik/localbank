@@ -32,10 +32,10 @@ const kontoOptions = (prefix, kontoer) => kontoer.map(a => ({
     label: prefix + " " + a.navn
 }));
 
-const valuttaOptions = valuttaer => valuttaer.map(v => ({
+export const valuttaAsOption = v => ({
     value: v.id,
     label: `${v.id} - ${v.navn}`
-}));
+});
 
 
 const required = v => (v||"").length === 0 ? "Påkrevd" : undefined;
@@ -68,9 +68,8 @@ export default props => (
         <Field 
             name="valutta" 
             component={renderSelector}
-            options={valuttaOptions(props.valuttaer)}
-            placeholder={"NOK - Norske kroner"}
-            clearable={true}
+            options={props.valuttaer.map(valuttaAsOption)}
+            clearable={false}
         />
         <Field
             name="timestamp"

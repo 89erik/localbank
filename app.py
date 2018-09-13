@@ -31,16 +31,16 @@ def post_transaksjon(bank):
             "til": dto["til"],
             "belop": float(dto["belop"]),
             "kommentar": dto["kommentar"] if "kommentar" in dto else "",
-            "timestamp": dateutil.parser.parse(dto["timestamp"]) # todo prev
+            "timestamp": dateutil.parser.parse(dto["timestamp"])
     }
 
-    if "valutta" in dto and dto["valutta"]:
+    if dto["valutta"] != "NOK":
         belop_NOK, kurs, kursTimestamp = valutta.konverter_til_NOK(transaksjon["belop"], dto["valutta"], transaksjon["timestamp"])
         opprinnligBelop = transaksjon["belop"]
         transaksjon["belop"] = belop_NOK
         transaksjon["valutta"] = {
             "belop": opprinnligBelop,
-            "navn": dto["valutta"],
+            "id": dto["valutta"],
             "kurs": kurs,
             "timestamp": kursTimestamp
         }
@@ -74,12 +74,14 @@ def get_transaksjoner(bank):
         "timestamp": transaksjon["timestamp"].isoformat(),
         "kommentar": transaksjon["kommentar"],
         "valutta": {
-            "timestamp": transaksjon["valutta"]["timestamp"],
+            "id": transaksjon["valutta"]["id"] if "id" in transaksjon["valutta"] else transaksjon["valutta"]["navn"], # legacy data
             "belop": transaksjon["valutta"]["belop"],
-            "navn": transaksjon["valutta"]["navn"],
-            "kurs": transaksjon["valutta"]["kurs"]
-        } if "valutta" in transaksjon else None
-        }, transaksjoner)
+            "kurs": transaksjon["valutta"]["kurs"],
+            "timestamp": transaksjon["valutta"]["timestamp"]
+        } if "valutta" in transaksjon else {
+            "id": "NOK"
+        }
+    }, transaksjoner)
     return json.dumps(dto)
     
 def hent_bruker_fra_db():

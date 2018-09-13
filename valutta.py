@@ -17,8 +17,12 @@ def alle_valuttaer():
         "id": valutta["id"],
         "navn": valutta["name"]
     }, parsed["structure"]["dimensions"]["series"][1]["values"])
+    nok = {
+        "id": "NOK",
+        "navn": "Norske kroner"
+    }
 
     valuttaerMap = dict(map(lambda v: (v["id"], v), valuttaer))
 
     priorities = ["SEK", "DKK", "EUR", "GBP", "USD"]
-    return map(valuttaerMap.get, priorities) + filter(lambda v: v["id"] not in priorities, valuttaer)
+    return [nok] + map(valuttaerMap.get, priorities) + filter(lambda v: v["id"] not in priorities, valuttaer)

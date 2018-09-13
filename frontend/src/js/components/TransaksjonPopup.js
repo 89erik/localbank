@@ -1,7 +1,7 @@
 import React from 'react';
 import Popup from 'reactjs-popup';
 import { reduxForm } from 'redux-form'
-import renderTransaksjonForm from './renderTransaksjonForm';
+import renderTransaksjonForm, {valuttaAsOption} from './renderTransaksjonForm';
 
 class TransaksjonPopup extends React.Component {
     closeWith(closeAction) {
@@ -18,16 +18,11 @@ class TransaksjonPopup extends React.Component {
         this.props.putTransaksjon(this.props.transaksjon.id, transaksjon);
     }
     editableTransaksjon(){
-        if ((this.props.transaksjon || {}).valutta) {
-            return {
-                ...this.props.transaksjon,
-                belop: this.props.transaksjon.valutta.belop,
-                valutta: this.props.transaksjon.valutta.navn
-            }
-        } else {
-            return this.props.transaksjon
+        return this.props.transaksjon && {
+            ...this.props.transaksjon,
+            belop: this.props.transaksjon.valutta.belop || this.props.transaksjon.belop,
+            valutta: valuttaAsOption(this.props.valuttaer.find(v => v.id === this.props.transaksjon.valutta.id))
         }
-
     }
     render() {
         return (

@@ -7,7 +7,6 @@ import TransaksjonPopup from './TransaksjonPopup';
 import {toISOStringInCurrentTimezone} from '../utils/date';
 
 import {
-    fetchKontoer, 
     fetchTransaksjoner, 
     selectTransaksjon, 
     putTransaksjon, 
@@ -38,7 +37,7 @@ class Transaksjoner extends Component {
 
     renderColumn (props) {
         const v = props.column.id === "belop" && props.original.valutta;
-        const title = v && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}, pluss 2% valuttapåslag fra banken`
+        const title = v.kurs && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}, pluss 2% valuttapåslag fra banken`
         return <div 
                     title={title || null}
                     onClick={() => this.props.dispatch(selectTransaksjon(props.original.id))}>
@@ -70,7 +69,7 @@ class Transaksjoner extends Component {
             id: "belop",
             className: "belop",
             headerClassName: "belop",
-            accessor: t => t.valutta ? `${t.valutta.belop.toFixed(2)} ${t.valutta.navn}` : t.belop.toFixed(2),
+            accessor: t => t.valutta.kurs ? `${t.valutta.belop.toFixed(2)} ${t.valutta.id}` : t.belop.toFixed(2),
             Cell: props => this.renderColumn(props)
         },{
             Header: "Kommentar",
