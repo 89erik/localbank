@@ -4,16 +4,17 @@ import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router'
 
 import Bank from './components/Bank'
-import {fetchBruker, fetchValuttaer} from './actions';
+import {fetchBank} from './actions';
 
 class Router extends Component {
     componentWillMount() {
-        if (this.props.bruker.needsFetch) {
-            this.props.dispatch(fetchBruker());
+        if (this.props.bank.needsFetch) {
+            this.props.dispatch(fetchBank());
         }
-        if (this.props.valuttaer.needsFetch) {
-            this.props.dispatch(fetchValuttaer());
-        }
+    }
+
+    isInitialized() {
+        return !this.props.bank.isFetching && !this.props.bank.needsFetch;
     }
 
     renderLoading() {
@@ -24,8 +25,10 @@ class Router extends Component {
         return (
           <div>
             <Switch>
-                <Route exact path="/" render={this.renderLoading} />
-                <Route path="/:bankId" component={Bank} />
+                { this.isInitialized() &&
+                    <Route path="/:bankId" component={Bank} />
+                }
+                <Route path="/" render={this.renderLoading} />
             </Switch>
           </div>
         );
@@ -33,8 +36,7 @@ class Router extends Component {
 }
 
 const mapStateToProps = state => ({
-    bruker: state.bruker,
-    valuttaer: state.valuttaer,
+    bank: state.bank,
     pathname: state.router.location.pathname // må tas inn for å rendre etter push
 });
 

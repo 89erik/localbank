@@ -15,17 +15,9 @@ export const DELETE_TRANSAKSJON_REQUEST = "DELETE_TRANSAKSJON_REQUEST";
 export const DELETE_TRANSAKSJON_SUCCESS = "DELETE_TRANSAKSJON_SUCCESS";
 export const DELETE_TRANSAKSJON_FAILURE = "DELETE_TRANSAKSJON_FAILURE";
 
-export const GET_KONTOER_REQUEST = "GET_KONTOER_REQUEST";
-export const GET_KONTOER_SUCCESS = "GET_KONTOER_SUCCESS";
-export const GET_KONTOER_FAILURE = "GET_KONTOER_FAILURE";
-
-export const GET_VALUTTAER_REQUEST = "GET_VALUTTAER_REQUEST";
-export const GET_VALUTTAER_SUCCESS = "GET_VALUTTAER_SUCCESS";
-export const GET_VALUTTAER_FAILURE = "GET_VALUTTAER_FAILURE";
-
-export const GET_BRUKER_REQUEST = "GET_BRUKER_REQUEST";
-export const GET_BRUKER_SUCCESS = "GET_BRUKER_SUCCESS";
-export const GET_BRUKER_FAILURE = "GET_BRUKER_FAILURE";
+export const GET_BANK_REQUEST = "GET_BANK_REQUEST";
+export const GET_BANK_SUCCESS = "GET_BANK_SUCCESS";
+export const GET_BANK_FAILURE = "GET_BANK_FAILURE";
 
 export const SELECT_TRANSAKSJON = "SELECT_TRANSAKSJON";
 
@@ -91,34 +83,17 @@ export const deleteTransaksjon = transaksjon => dispatch => {
         });
 }
 
-export const fetchKontoer = () => (dispatch, getState) => {
-    dispatch({type: GET_KONTOER_REQUEST});
+export const fetchBank = () => (dispatch, getState) => {
+    dispatch({type: GET_BANK_REQUEST});
+    const valgtBank = bank(getState);
 
-    GET(`/${bank(getState)}/kontoer`)
+    GET(valgtBank ? `/${valgtBank}/bank` : "/bank")
         .then(res => res.json())
-        .then(kontoer => dispatch({type: GET_KONTOER_SUCCESS, kontoer}))
-        .catch(error => dispatch({type: GET_KONTOER_FAILURE, error}));
-}
-
-export const fetchValuttaer = () => dispatch => {
-    dispatch({type: GET_VALUTTAER_REQUEST});
-
-    GET("/valuttaer")
-        .then(res => res.json())
-        .then(valuttaer => dispatch({type: GET_VALUTTAER_SUCCESS, valuttaer}))
-        .catch(error => dispatch({type: GET_VALUTTAER_FAILURE, error}));
-}
-
-export const fetchBruker = () => (dispatch, getState) => {
-    dispatch({type: GET_BRUKER_REQUEST});
-
-    GET("/bruker")
-        .then(res => res.json())
-        .then(bruker => {
-            dispatch({type: GET_BRUKER_SUCCESS, bruker});
-            if (getState().router.location.pathname === "/") {
-                dispatch(push("/" + bruker.defaultBank));
+        .then(bank => {
+            dispatch({type: GET_BANK_SUCCESS, ...bank});
+            if (!valgtBank) {
+                dispatch(push("/" + bank.valgtBank));
             }
         })
-        .catch(error => dispatch({type: GET_BRUKER_FAILURE, error}));
+        .catch(error => dispatch({type: GET_BANK_FAILURE, error}));
 }

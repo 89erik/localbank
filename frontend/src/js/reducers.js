@@ -7,15 +7,9 @@ import {
     GET_TRANSAKSJONER_FAILURE,
     POST_TRANSAKSJON_SUCCESS, 
     SELECT_TRANSAKSJON,
-    GET_KONTOER_REQUEST,
-    GET_KONTOER_SUCCESS,
-    GET_KONTOER_FAILURE,
-    GET_VALUTTAER_REQUEST,
-    GET_VALUTTAER_SUCCESS,
-    GET_VALUTTAER_FAILURE,
-    GET_BRUKER_REQUEST,
-    GET_BRUKER_SUCCESS,
-    GET_BRUKER_FAILURE
+    GET_BANK_REQUEST,
+    GET_BANK_SUCCESS,
+    GET_BANK_FAILURE
 } from './actions';
 
 const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -57,81 +51,40 @@ const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, ac
     }
 };
 
-const kontoer = (state = {isFetching: false, needsFetch: true, items:[]}, action) => {
+const bank = (state = {
+    isFetching: false, 
+    needsFetch: true, 
+    valuttaer:[], 
+    kontoer: [], 
+    bruker: null
+}, action) => {
     switch (action.type){
-        case GET_KONTOER_REQUEST:
+        case GET_BANK_REQUEST:
             return {
                 ...state,
                 needsFetch: false,
                 isFetching: true
             };
-        case GET_KONTOER_FAILURE:
+        case GET_BANK_FAILURE:
             return {
                 ...state,
                 isFetching: false
             };
-        case GET_KONTOER_SUCCESS:
+        case GET_BANK_SUCCESS:
             return {
                 ...state,
                 isFetching: false,
-                items: action.kontoer
+                valuttaer: action.valuttaer,
+                kontoer: action.kontoer,
+                bruker: action.bruker
             };
         default:
             return state;
     }
 }
 
-const valuttaer = (state = {isFetching: false, needsFetch: true, items:[]}, action) => {
-    switch (action.type){
-        case GET_VALUTTAER_REQUEST:
-            return {
-                ...state,
-                needsFetch: false,
-                isFetching: true
-            };
-        case GET_VALUTTAER_FAILURE:
-            return {
-                ...state,
-                isFetching: false
-            };
-        case GET_VALUTTAER_SUCCESS:
-            return {
-                ...state,
-                isFetching: false,
-                items: action.valuttaer
-            };
-        default:
-            return state;
-    }
-}
-
-const bruker = (state = {isFetching: false, needsFetch: true}, action) => {
-    switch (action.type){
-        case GET_BRUKER_REQUEST:
-            return {
-                ...state,
-                needsFetch: false,
-                isFetching: true
-            };
-        case GET_BRUKER_FAILURE:
-            return {
-                ...state,
-                isFetching: false
-            };
-        case GET_BRUKER_SUCCESS:
-            return {
-                ...state,
-                isFetching: false,
-                defaultBank: action.bruker.defaultBank
-            };
-        default:
-            return state;
-    }
-}
 export default combineReducers({
-    bruker,
     transaksjoner,
-    kontoer,
-    valuttaer,
+    bank,
     form: formReducer
 });

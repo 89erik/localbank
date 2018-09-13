@@ -14,6 +14,8 @@ import valutta
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
 
+valuttaer = valutta.alle_valuttaer()
+
 @app.route('/<bank>/transaksjon', methods=["POST", "PUT"])
 def post_transaksjon(bank):
     dto = request.json
@@ -80,46 +82,33 @@ def get_transaksjoner(bank):
         }, transaksjoner)
     return json.dumps(dto)
     
-@app.route('/<bank>/kontoer', methods=['GET'])
-def get_kontoer(bank):
-    if not har_tilgang_til_bank(bank):
-        return forbidden("Du har ikke tilgang til bank '%s'" % bank)
-    dto = map(lambda konto: {
-        "navn": konto["navn"],
-        "felles": konto["felles"]
-    }, db.kontoer.find({"bank": bank}))
-    n_felleskontoer = len(filter(lambda konto: konto["felles"], dto))
-    if n_felleskontoer != 1:
-        raise Exception("%d felles-kontoer" % n_felleskontoer)
-    
-    return json.dumps(dto)
-
-valuttaer = None
-@app.route('/valuttaer', methods=['GET'])
-@app.route('/valuttaer/<force>', methods=['GET'])
-def get_valuttaer(force = False):
-    global valuttaer
-    if not valuttaer or force:
-        valuttaer = valutta.alle_valuttaer()
-    return json.dumps(valuttaer)
-
 def hent_bruker_fra_db():
     brukernavn = request.environ.get('REMOTE_USER') or "LAN"
     return db.brukere.find_one({"brukernavn": brukernavn})
-    
 
-@app.route('/bruker')
-def get_bruker():
+
+@app.route("/bank")
+@app.route("/<bank>/bank")
+def get_bank(bank = None):
     bruker = hent_bruker_fra_db()
-    if bruker:
-        return json.dumps({
+    bank = bank or bruker["defaultBank"]
+    if bank not in bruker["banker"]:
+        return forbidden("Du har ikke tilgang til bank '%s'" % bank)
+    kontoer = db.kontoer.find({"bank": bank})
+    
+    return json.dumps({
+        "valgtBank": bank,
+        "bruker": {
             "brukernavn": bruker["brukernavn"],
-            "defaultBank": bruker["defaultBank"],
             "banker": bruker["banker"]
-        })
-    else:
-        return not_found
-
+        },
+        "kontoer": map(lambda konto: {
+            "navn": konto["navn"],
+            "felles": konto["felles"]
+        }, kontoer),
+        "valuttaer": valuttaer
+    })
+    
 def har_tilgang_til_bank(bank):
     return bank in hent_bruker_fra_db()["banker"]
 

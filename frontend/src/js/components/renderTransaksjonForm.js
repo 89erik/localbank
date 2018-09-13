@@ -45,18 +45,16 @@ export default props => (
         <Field 
             name="fra" 
             component={renderSelector}
-            options={kontoOptions("Fra", props.kontoer.items)}
+            options={kontoOptions("Fra", props.kontoer)}
             placeholder={"Fra konto"}
             validate={required}
-            disabled={props.kontoer.isFetching}
         />
         <Field 
             name="til" 
             component={renderSelector}
-            options={kontoOptions("Til", props.kontoer.items)}
+            options={kontoOptions("Til", props.kontoer)}
             placeholder={"Til konto"}
             validate={required}
-            disabled={props.kontoer.isFetching}
         />
         <Field 
             name="belop" 
@@ -70,10 +68,9 @@ export default props => (
         <Field 
             name="valutta" 
             component={renderSelector}
-            options={valuttaOptions(props.valuttaer.items)}
+            options={valuttaOptions(props.valuttaer)}
             placeholder={"NOK - Norske kroner"}
             clearable={true}
-            disabled={props.valuttaer.isFetching}
         />
         <Field
             name="timestamp"

@@ -21,9 +21,6 @@ class Transaksjoner extends Component {
         if (this.props.transaksjoner.needsFetch){
             this.props.dispatch(fetchTransaksjoner());
         }
-        if (this.props.kontoer.needsFetch) {
-            this.props.dispatch(fetchKontoer());
-        }
     }
 
     renderGjeld(gjeld) {
@@ -89,7 +86,7 @@ class Transaksjoner extends Component {
             <div className="transaksjoner">
                 <div className="gjeld">
                     Gjeld (alt i NOK):
-                    {this.renderGjeld(beregnGjeld(this.props.transaksjoner.items, this.props.kontoer.items))}
+                    {this.renderGjeld(beregnGjeld(this.props.transaksjoner.items, this.props.kontoer))}
                 </div>
                 <ReactTable 
                     data={this.props.transaksjoner.items} 
@@ -113,8 +110,8 @@ class Transaksjoner extends Component {
 
 const mapStateToProps = state => ({
     transaksjoner: state.transaksjoner,
-    kontoer: state.kontoer,
-    valuttaer: state.valuttaer
+    kontoer: state.bank.kontoer,
+    valuttaer: state.bank.valuttaer
   });
 
 export default connect(
