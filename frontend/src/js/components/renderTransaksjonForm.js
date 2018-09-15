@@ -27,10 +27,10 @@ const renderDatePicker = (field) => (
     />
 );
 
-const kontoOptions = (prefix, kontoer) => kontoer.map(a => ({
-    value: a.navn,
-    label: prefix + " " + a.navn
-}));
+export const kontoAsOption = (prefix, konto) => ({
+    value: konto.navn,
+    label: prefix + " " + konto.navn
+});
 
 export const valuttaAsOption = v => ({
     value: v.id,
@@ -45,14 +45,14 @@ export default props => (
         <Field 
             name="fra" 
             component={renderSelector}
-            options={kontoOptions("Fra", props.kontoer)}
+            options={props.kontoer.map(k => kontoAsOption("Fra", k))}
             placeholder={"Fra konto"}
             validate={required}
         />
         <Field 
             name="til" 
             component={renderSelector}
-            options={kontoOptions("Til", props.kontoer)}
+            options={props.kontoer.map(k => kontoAsOption("Til", k))}
             placeholder={"Til konto"}
             validate={required}
         />

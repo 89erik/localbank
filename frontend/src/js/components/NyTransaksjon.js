@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form'
 
-import renderTransaksjonForm, {valuttaAsOption} from './renderTransaksjonForm';
+import renderTransaksjonForm, {valuttaAsOption, kontoAsOption} from './renderTransaksjonForm';
 import {postTransaksjon} from '../actions';
 
 class NyTransaksjon extends Component {
@@ -13,6 +13,7 @@ class NyTransaksjon extends Component {
                 kontoer={this.props.kontoer}
                 valuttaer={this.props.valuttaer}
                 initialValues={{
+                    til: kontoAsOption("Til", this.props.kontoer.find(k => k.felles)),
                     valutta: valuttaAsOption(this.props.valuttaer[0]),
                     timestamp: new Date()
                 }}
