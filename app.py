@@ -74,7 +74,7 @@ def get_transaksjoner(bank):
         "timestamp": transaksjon["timestamp"].isoformat(),
         "kommentar": transaksjon["kommentar"],
         "valutta": {
-            "id": transaksjon["valutta"]["id"] if "id" in transaksjon["valutta"] else transaksjon["valutta"]["navn"], # legacy data
+            "id": transaksjon["valutta"]["id"],
             "belop": transaksjon["valutta"]["belop"],
             "kurs": transaksjon["valutta"]["kurs"],
             "timestamp": transaksjon["valutta"]["timestamp"]
