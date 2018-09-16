@@ -110,7 +110,7 @@ export const visHistorikk = transaksjonId => (dispatch, getState) => {
     dispatch(push(`/${bank(getState)}/transaksjon/${transaksjonId}/historikk`));
 }
 
-export const lastHistorikk = transaksjonId => dispatch => {
+export const fetchHistorikk = transaksjonId => dispatch => {
     dispatch({type: GET_HISTORIKK_REQUEST, transaksjonId});
     GET(`/transaksjon/${transaksjonId}/historikk`)
         .then(res => res.json())

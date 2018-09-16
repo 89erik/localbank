@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import {lastHistorikk} from '../actions';
+import {fetchHistorikk} from '../actions';
 import {belopAccessor, timestampAccessor} from '../utils/accessors';
 import '../../style/historikk.css'
 
@@ -10,7 +10,7 @@ let seq = 0;
 class Historikk extends Component {
     componentWillMount() {
         if (this.props.match.params.transaksjonId !== this.props.historikk.transaksjonId) {
-            this.props.dispatch(lastHistorikk(this.props.match.params.transaksjonId));
+            this.props.dispatch(fetchHistorikk(this.props.match.params.transaksjonId));
         }
     }
     
