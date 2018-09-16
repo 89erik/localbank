@@ -148,10 +148,11 @@ def krev_tilgang_til_bank(bank):
 def no_content():
     return ("", 204)
 
-
 @app.errorhandler(Exception)
 def handle_error(error):
-    return (error.message, error.status_code if isinstance(error, ApiException) else 500)
+    app.log_exception(error)
+    status_code = error.status_code if isinstance(error, ApiException) else 500
+    return (error.message, status_code)
 
 
 if __name__ == '__main__':
