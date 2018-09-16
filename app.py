@@ -10,6 +10,7 @@ from datetime import datetime
 import dateutil.parser
 
 import valutta
+from errors import ApiException, Forbidden, NotFound
 
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
@@ -19,8 +20,8 @@ valuttaer = valutta.alle_valuttaer()
 @app.route('/<bank>/transaksjon', methods=["POST", "PUT"])
 def post_transaksjon(bank):
     dto = request.json
-    if not har_tilgang_til_bank(bank):
-        return forbidden("Du har ikke tilgang til bank '%s'" % bank)
+    krev_tilgang_til_bank(bank)
+    
     prev = db.transaksjoner.find_one({"_id": ObjectId(dto["id"])}) if request.method == "PUT" else None
     if prev and prev["bank"] != bank:
         raise Exception("Klienten gjorde PUT transaksjon/%s på id=%s, men denne IDen har bank=%s" % (bank, dto["id"], prev["bank"]))
@@ -70,7 +71,7 @@ def forgjengere(transaksjon):
 def get_transaksjon_historikk(transaksjonId):
     transaksjon = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})
     if not transaksjon:
-        return not_found("Transaksjon med id %s finnes ikke" % transaksjonId)
+        raise NotFound("Transaksjon med id %s finnes ikke" % transaksjonId)
 
     historikk = forgjengere(transaksjon) + [transaksjon] + etterkommere(transaksjon)
     antall_slettet = len(filter(lambda t: not t.get("deleted", False), historikk))
@@ -81,16 +82,14 @@ def get_transaksjon_historikk(transaksjonId):
 @app.route('/transaksjon/<transaksjonId>', methods=['DELETE'])
 def delete_transaksjon(transaksjonId):
     bank = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})["bank"]
-    if not har_tilgang_til_bank(bank):
-        return forbidden("Du har ikke tilgang til bank '%s'" % bank)
+    krev_tilgang_til_bank(bank)
         
     db.transaksjoner.find_one_and_update({"_id": ObjectId(transaksjonId)}, {"$set": {"deleted": True}})
     return no_content()
 
 @app.route('/<bank>/transaksjoner', methods=['GET'])
 def get_transaksjoner(bank):
-    if not har_tilgang_til_bank(bank):
-        return forbidden("Du har ikke tilgang til bank '%s'" % bank)
+    krev_tilgang_til_bank(bank)
 
     transaksjoner = db.transaksjoner.find({"deleted": {"$ne": True}, "bank": bank})
     return json.dumps(map(transaksjon_dto, transaksjoner))
@@ -126,7 +125,7 @@ def get_bank(bank = None):
     bruker = hent_bruker_fra_db()
     bank = bank or bruker["defaultBank"]
     if bank not in bruker["banker"]:
-        return forbidden("Du har ikke tilgang til bank '%s'" % bank)
+        raise Forbidden("Du har ikke tilgang til bank '%s'" % bank)
     kontoer = db.kontoer.find({"bank": bank})
     
     return json.dumps({
@@ -142,17 +141,18 @@ def get_bank(bank = None):
         "valuttaer": valuttaer
     })
     
-def har_tilgang_til_bank(bank):
-    return bank in hent_bruker_fra_db()["banker"]
+def krev_tilgang_til_bank(bank):
+    if not bank in hent_bruker_fra_db()["banker"]:
+        raise Forbidden("Du har ikke tilgang til bank '%s'" % bank)
 
 def no_content():
     return ("", 204)
 
-def not_found(msg):
-    return (msg, 404)
 
-def forbidden(msg):
-    return (msg, 403)
+@app.errorhandler(Exception)
+def handle_error(error):
+    return (error.message, error.status_code if isinstance(error, ApiException) else 500)
+
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0', port=5000)
