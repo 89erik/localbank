@@ -31,6 +31,7 @@ export const selectTransaksjon = transaksjonId => ({
 });
 
 const bank = getState => {
+    // eslint-disable-next-line
     const m = /\/([^\/]+)/.exec(getState().router.location.pathname)
     return m && m[1];
 };

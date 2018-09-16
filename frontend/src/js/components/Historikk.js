@@ -14,34 +14,67 @@ class Historikk extends Component {
         }
     }
     
-    renderTransaksjon(t) {
-        const transaksjon = [
-            ["Fra", t.fra],
-            ["Til", t.til],
-            ["Beløp", belopAccessor(t)],
-            ["Dato", timestampAccessor(t)]
-        ];
+    renderTransaksjon(transaksjon) {
         return (
             <div key={seq++} className="transaksjon">
                 <div className="lines">
-                    {transaksjon.map((line, i) => (
+                    {transaksjon.lines.map((line, i) => (
                         <div key={i} className="line">
-                            <span>{line[0]}:</span>
-                            <span>{line[1]}</span>
+                            <span>{line.label}:</span>
+                            <span className={(line.changed ? " changed" : "")}>
+                                {line.value}
+                            </span>
                         </div>
                     ))}
-                    <span className="kommentar">{t.kommentar}</span>
+                    <span className={"kommentar"+ (transaksjon.kommentar.changed ? " changed" : "")}>
+                        {transaksjon.kommentar.value}
+                    </span>
                 </div>
             </div>
         );
             
     }
 
+    transaksjoner() {
+        return this.props.historikk.items.map((t, i) => {
+            const forgjenger = this.props.historikk.items[i === 0 ? i : i-1];
+
+            return {
+                lines: [
+                    {
+                        key: "fra",
+                        label: "Fra"
+                    },{
+                        key: "til",
+                        label: "Til"
+                    },{
+                        key: "belop",
+                        accessor: belopAccessor,
+                        label: "Beløp"
+                    },{
+                        key: "timestamp",
+                        accessor: timestampAccessor,
+                        label: "Dato"
+                    }
+                ].map(l => ({
+                    label: l.label,
+                    value: l.accessor ? l.accessor(t) : t[l.key],
+                    changed: JSON.stringify(t[l.key]) !== JSON.stringify(forgjenger[l.key])
+                })),
+                kommentar: {
+                    value: t.kommentar,
+                    changed: t.kommentar !== forgjenger.kommentar
+                }
+            };
+        });
+    }
+
     render() {
+
         return this.props.historikk.isFetching 
             ? <img src="/loading.gif" className="loading-gif" alt="Laster..."/> 
             : <div className="historikk">
-                {this.props.historikk.items.map(this.renderTransaksjon)}
+                {this.transaksjoner().map(this.renderTransaksjon)}
              </div>;
     }
 }
