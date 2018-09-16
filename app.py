@@ -51,6 +51,33 @@ def post_transaksjon(bank):
     
     return no_content()
 
+
+def etterkommere(transaksjon):
+    if "replacedBy" in transaksjon:
+        etterkommer = db.transaksjoner.find_one({"_id": ObjectId(transaksjon["replacedBy"])})
+        return [etterkommer] + etterkommere(etterkommer)
+    else:
+        return []
+
+def forgjengere(transaksjon):
+    forgjenger = db.transaksjoner.find_one({"replacedBy": transaksjon["_id"]})
+    if forgjenger:
+        return forgjengere(forgjenger) + [forgjenger]
+    else:
+        return []
+
+@app.route('/transaksjon/<transaksjonId>/historikk', methods=['GET'])
+def get_transaksjon_historikk(transaksjonId):
+    transaksjon = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})
+    if not transaksjon:
+        return not_found("Transaksjon med id %s finnes ikke" % transaksjonId)
+
+    historikk = forgjengere(transaksjon) + [transaksjon] + etterkommere(transaksjon)
+    antall_slettet = len(filter(lambda t: not t.get("deleted", False), historikk))
+    if antall_slettet != 1:
+        raise Exception("I historikken til transaksjon %s er %d aktive" % (transaksjonId, antall_slettet))
+    return json.dumps(map(transaksjon_dto, historikk))
+
 @app.route('/transaksjon/<transaksjonId>', methods=['DELETE'])
 def delete_transaksjon(transaksjonId):
     bank = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})["bank"]
@@ -66,13 +93,18 @@ def get_transaksjoner(bank):
         return forbidden("Du har ikke tilgang til bank '%s'" % bank)
 
     transaksjoner = db.transaksjoner.find({"deleted": {"$ne": True}, "bank": bank})
-    dto = map(lambda transaksjon: {
+    return json.dumps(map(transaksjon_dto, transaksjoner))
+
+def transaksjon_dto(transaksjon, extended = False):
+    return {
         "id": str(transaksjon["_id"]),
         "fra": transaksjon["fra"],
         "til": transaksjon["til"],
         "belop": transaksjon["belop"],
         "timestamp": transaksjon["timestamp"].isoformat(),
         "kommentar": transaksjon["kommentar"],
+        "deleted": transaksjon.get("deleted", False),
+        "replacedBy": str(transaksjon["replacedBy"]) if "replacedBy" in transaksjon else None,
         "valutta": {
             "id": transaksjon["valutta"]["id"],
             "belop": transaksjon["valutta"]["belop"],
@@ -81,9 +113,8 @@ def get_transaksjoner(bank):
         } if "valutta" in transaksjon else {
             "id": "NOK"
         }
-    }, transaksjoner)
-    return json.dumps(dto)
-    
+    }
+
 def hent_bruker_fra_db():
     brukernavn = request.environ.get('REMOTE_USER') or "LAN"
     return db.brukere.find_one({"brukernavn": brukernavn})

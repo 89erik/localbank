@@ -19,6 +19,10 @@ export const GET_BANK_REQUEST = "GET_BANK_REQUEST";
 export const GET_BANK_SUCCESS = "GET_BANK_SUCCESS";
 export const GET_BANK_FAILURE = "GET_BANK_FAILURE";
 
+export const GET_HISTORIKK_REQUEST = "GET_HISTORIKK_REQUEST";
+export const GET_HISTORIKK_SUCCESS = "GET_HISTORIKK_SUCCESS";
+export const GET_HISTORIKK_FAILURE = "GET_HISTORIKK_FAILURE";
+
 export const SELECT_TRANSAKSJON = "SELECT_TRANSAKSJON";
 
 export const selectTransaksjon = transaksjonId => ({
@@ -26,7 +30,10 @@ export const selectTransaksjon = transaksjonId => ({
     transaksjonId
 });
 
-const bank = getState => getState().router.location.pathname.slice(1);
+const bank = getState => {
+    const m = /\/([^\/]+)/.exec(getState().router.location.pathname)
+    return m && m[1];
+};
 
 export const fetchTransaksjoner = () => (dispatch, getState) => {
     dispatch({type: GET_TRANSAKSJONER_REQUEST});
@@ -96,4 +103,16 @@ export const fetchBank = () => (dispatch, getState) => {
             }
         })
         .catch(error => dispatch({type: GET_BANK_FAILURE, error}));
+}
+
+export const visHistorikk = transaksjonId => (dispatch, getState) => {
+    dispatch(push(`/${bank(getState)}/transaksjon/${transaksjonId}/historikk`));
+}
+
+export const lastHistorikk = transaksjonId => dispatch => {
+    dispatch({type: GET_HISTORIKK_REQUEST, transaksjonId});
+    GET(`/transaksjon/${transaksjonId}/historikk`)
+        .then(res => res.json())
+        .then(transaksjoner => dispatch({type: GET_HISTORIKK_SUCCESS, transaksjoner}))
+        .catch(error => dispatch({type: GET_HISTORIKK_FAILURE, error}));
 }

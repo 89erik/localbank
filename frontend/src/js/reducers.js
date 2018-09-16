@@ -7,6 +7,9 @@ import {
     GET_TRANSAKSJONER_FAILURE,
     POST_TRANSAKSJON_SUCCESS, 
     SELECT_TRANSAKSJON,
+    GET_HISTORIKK_REQUEST,
+    GET_HISTORIKK_SUCCESS,
+    GET_HISTORIKK_FAILURE,
     GET_BANK_REQUEST,
     GET_BANK_SUCCESS,
     GET_BANK_FAILURE
@@ -51,6 +54,34 @@ const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, ac
     }
 };
 
+const historikk = (state = {isFetching: false, transaksjonId: null, items:[]}, action) => {
+    switch (action.type) {
+        case GET_HISTORIKK_REQUEST:
+            return {
+                ...state,
+                isFetching: true,
+                transaksjonId: action.transaksjonId
+            };
+        case GET_HISTORIKK_FAILURE:
+            return {
+                ...state,
+                isFetching: false,
+                transaksjonId: null
+            };
+        case GET_HISTORIKK_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                items: action.transaksjoner.map(t => ({
+                    ...t,
+                    timestamp: new Date(t.timestamp)
+                }))
+            };
+        default:
+            return state;
+    }
+};
+
 const bank = (state = {
     isFetching: false, 
     needsFetch: true, 
@@ -85,6 +116,7 @@ const bank = (state = {
 
 export default combineReducers({
     transaksjoner,
+    historikk,
     bank,
     form: formReducer
 });

@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router'
 
-import Bank from './components/Bank'
+import Bank from './components/Bank';
+import Historikk from './components/Historikk';
 import {fetchBank} from './actions';
 
 class Router extends Component {
@@ -22,13 +23,15 @@ class Router extends Component {
     }
 
     render() {
+        let seq = 0;
         return (
           <div>
             <Switch>
-                { this.isInitialized() &&
-                    <Route path="/:bankId" component={Bank} />
-                }
-                <Route path="/" render={this.renderLoading} />
+                { this.isInitialized() && [
+                    <Route path="/:bankId/transaksjon/:transaksjonId/historikk" component={Historikk} key={seq++}/>,
+                    <Route path="/:bankId" component={Bank} key={seq++} />
+                ]}
+                <Route path="/" render={this.renderLoading} key={seq++} />
             </Switch>
           </div>
         );

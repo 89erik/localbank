@@ -1,0 +1,26 @@
+.historikk {
+  display: flex;
+  flex-wrap: wrap;
+
+  .transaksjon {
+      border: 1px solid black;
+      border-radius: 3px;
+      padding: 4px;
+      margin: 3px;
+      width: 150px;
+      .lines {
+          display: flex;
+          flex-direction: column;
+          
+          .line {
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+          }
+          .kommentar {
+              margin-top: 5px;
+          }
+      }
+
+  }
+}

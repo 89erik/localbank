@@ -35,10 +35,17 @@ class TransaksjonPopup extends React.Component {
                     renderAmendments={() => [
                         <button 
                             key="delete"
-                            onClick={() => this.closeWith(() => this.props.deleteTransaksjon(this.props.transaksjon))} 
+                            onClick={() => this.closeWith(this.props.deleteTransaksjon)} 
                             className="Select-control"
                         >
                             Slett
+                        </button>,
+                        <button
+                            key="historikk"
+                            onClick={() => this.closeWith(this.props.visHistorikk)}
+                            className="Select-control"
+                        >
+                            Historikk
                         </button>,
                         <button 
                             key="avbryt"

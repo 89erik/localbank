@@ -4,13 +4,14 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 
 import TransaksjonPopup from './TransaksjonPopup';
-import {toISOStringInCurrentTimezone} from '../utils/date';
+import {belopAccessor, timestampAccessor} from '../utils/accessors';
 
 import {
     fetchTransaksjoner, 
     selectTransaksjon, 
     putTransaksjon, 
-    deleteTransaksjon
+    deleteTransaksjon,
+    visHistorikk
 } from '../actions';
 import {beregnGjeld} from '../utils/gjeld';
 let seq=0;
@@ -50,7 +51,7 @@ class Transaksjoner extends Component {
             id: "timestamp",
             className: "timestamp",
             headerClassName: "timestamp",
-            accessor: t => toISOStringInCurrentTimezone(t.timestamp).slice(0,10),
+            accessor: timestampAccessor,
             Cell: props => this.renderColumn(props)
         },{
             Header: "Fra",
@@ -69,7 +70,7 @@ class Transaksjoner extends Component {
             id: "belop",
             className: "belop",
             headerClassName: "belop",
-            accessor: t => t.valutta.kurs ? `${t.valutta.belop.toFixed(2)} ${t.valutta.id}` : t.belop.toFixed(2),
+            accessor: belopAccessor,
             Cell: props => this.renderColumn(props)
         },{
             Header: "Kommentar",
@@ -98,7 +99,8 @@ class Transaksjoner extends Component {
                     transaksjon={this.props.transaksjoner.selectedTransaksjon}
                     onClose={() => this.props.dispatch(selectTransaksjon(false))}
                     putTransaksjon={(id, t) => this.props.dispatch(putTransaksjon(id, t))}
-                    deleteTransaksjon={t => this.props.dispatch(deleteTransaksjon(t))}
+                    deleteTransaksjon={() => this.props.dispatch(deleteTransaksjon(this.props.transaksjoner.selectedTransaksjon))}
+                    visHistorikk={() => this.props.dispatch(visHistorikk(this.props.transaksjoner.selectedTransaksjon.id))}
                     kontoer={this.props.kontoer}
                     valuttaer={this.props.valuttaer}
                 />
