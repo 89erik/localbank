@@ -150,9 +150,11 @@ def no_content():
 
 @app.errorhandler(Exception)
 def handle_error(error):
+    is_known_error = isinstance(error, ApiException)
     app.log_exception(error)
-    status_code = error.status_code if isinstance(error, ApiException) else 500
-    return (error.message, status_code)
+    status_code = error.status_code if is_known_error else 500
+    message = error.message if is_known_error else "%s: %s" % (type(error).__name__, error)
+    return (message, status_code)
 
 
 if __name__ == '__main__':
