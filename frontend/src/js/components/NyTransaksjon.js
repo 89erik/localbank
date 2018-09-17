@@ -29,8 +29,8 @@ const NyTransaksjonForm = reduxForm({
 
 
 const mapStateToProps = state => ({
-    kontoer: state.bank.kontoer,
-    valuttaer: state.bank.valuttaer
+    kontoer: state.kontekst.kontoer,
+    valuttaer: state.kontekst.valuttaer
   });
 
 export default connect(

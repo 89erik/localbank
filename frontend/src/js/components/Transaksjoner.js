@@ -111,8 +111,8 @@ class Transaksjoner extends Component {
 
 const mapStateToProps = state => ({
     transaksjoner: state.transaksjoner,
-    kontoer: state.bank.kontoer,
-    valuttaer: state.bank.valuttaer
+    kontoer: state.kontekst.kontoer,
+    valuttaer: state.kontekst.valuttaer
   });
 
 export default connect(

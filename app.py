@@ -119,8 +119,8 @@ def hent_bruker_fra_db():
     return db.brukere.find_one({"brukernavn": brukernavn})
 
 
-@app.route("/bank")
-@app.route("/<bank>/bank")
+@app.route("/kontekst")
+@app.route("/<bank>/kontekst")
 def get_bank(bank = None):
     bruker = hent_bruker_fra_db()
     bank = bank or bruker["defaultBank"]

@@ -10,9 +10,9 @@ import {
     GET_HISTORIKK_REQUEST,
     GET_HISTORIKK_SUCCESS,
     GET_HISTORIKK_FAILURE,
-    GET_BANK_REQUEST,
-    GET_BANK_SUCCESS,
-    GET_BANK_FAILURE
+    GET_KONTEKST_REQUEST,
+    GET_KONTEKST_SUCCESS,
+    GET_KONTEKST_FAILURE
 } from './actions';
 
 const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -82,7 +82,7 @@ const historikk = (state = {isFetching: false, transaksjonId: null, items:[]}, a
     }
 };
 
-const bank = (state = {
+const kontekst = (state = {
     isFetching: false, 
     needsFetch: true, 
     valuttaer:[], 
@@ -90,18 +90,18 @@ const bank = (state = {
     bruker: null
 }, action) => {
     switch (action.type){
-        case GET_BANK_REQUEST:
+        case GET_KONTEKST_REQUEST:
             return {
                 ...state,
                 needsFetch: false,
                 isFetching: true
             };
-        case GET_BANK_FAILURE:
+        case GET_KONTEKST_FAILURE:
             return {
                 ...state,
                 isFetching: false
             };
-        case GET_BANK_SUCCESS:
+        case GET_KONTEKST_SUCCESS:
             return {
                 ...state,
                 isFetching: false,
@@ -117,6 +117,6 @@ const bank = (state = {
 export default combineReducers({
     transaksjoner,
     historikk,
-    bank,
+    kontekst,
     form: formReducer
 });

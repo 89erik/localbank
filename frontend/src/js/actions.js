@@ -15,9 +15,9 @@ export const DELETE_TRANSAKSJON_REQUEST = "DELETE_TRANSAKSJON_REQUEST";
 export const DELETE_TRANSAKSJON_SUCCESS = "DELETE_TRANSAKSJON_SUCCESS";
 export const DELETE_TRANSAKSJON_FAILURE = "DELETE_TRANSAKSJON_FAILURE";
 
-export const GET_BANK_REQUEST = "GET_BANK_REQUEST";
-export const GET_BANK_SUCCESS = "GET_BANK_SUCCESS";
-export const GET_BANK_FAILURE = "GET_BANK_FAILURE";
+export const GET_KONTEKST_REQUEST = "GET_KONTEKST_REQUEST";
+export const GET_KONTEKST_SUCCESS = "GET_KONTEKST_SUCCESS";
+export const GET_KONTEKST_FAILURE = "GET_KONTEKST_FAILURE";
 
 export const GET_HISTORIKK_REQUEST = "GET_HISTORIKK_REQUEST";
 export const GET_HISTORIKK_SUCCESS = "GET_HISTORIKK_SUCCESS";
@@ -91,19 +91,19 @@ export const deleteTransaksjon = transaksjon => dispatch => {
         });
 }
 
-export const fetchBank = () => (dispatch, getState) => {
-    dispatch({type: GET_BANK_REQUEST});
+export const fetchKontekst = () => (dispatch, getState) => {
+    dispatch({type: GET_KONTEKST_REQUEST});
     const valgtBank = bank(getState);
 
-    GET(valgtBank ? `/${valgtBank}/bank` : "/bank")
+    GET(valgtBank ? `/${valgtBank}/kontekst` : "/kontekst")
         .then(res => res.json())
         .then(bank => {
-            dispatch({type: GET_BANK_SUCCESS, ...bank});
+            dispatch({type: GET_KONTEKST_SUCCESS, ...bank});
             if (!valgtBank) {
                 dispatch(push("/" + bank.valgtBank));
             }
         })
-        .catch(error => dispatch({type: GET_BANK_FAILURE, error}));
+        .catch(error => dispatch({type: GET_KONTEKST_FAILURE, error}));
 }
 
 export const visHistorikk = transaksjonId => (dispatch, getState) => {
