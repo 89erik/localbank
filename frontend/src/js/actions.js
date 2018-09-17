@@ -23,6 +23,14 @@ export const GET_HISTORIKK_REQUEST = "GET_HISTORIKK_REQUEST";
 export const GET_HISTORIKK_SUCCESS = "GET_HISTORIKK_SUCCESS";
 export const GET_HISTORIKK_FAILURE = "GET_HISTORIKK_FAILURE";
 
+export const GET_BRUKERE_REQUEST = "GET_BRUKERE_REQUEST";
+export const GET_BRUKERE_SUCCESS = "GET_BRUKERE_SUCCESS";
+export const GET_BRUKERE_FAILURE = "GET_BRUKERE_FAILURE";
+
+export const GET_BANKER_REQUEST = "GET_BANKER_REQUEST";
+export const GET_BANKER_SUCCESS = "GET_BANKER_SUCCESS";
+export const GET_BANKER_FAILURE = "GET_BANKER_FAILURE";
+
 export const SELECT_TRANSAKSJON = "SELECT_TRANSAKSJON";
 
 export const selectTransaksjon = transaksjonId => ({
@@ -92,9 +100,12 @@ export const deleteTransaksjon = transaksjon => dispatch => {
 }
 
 export const fetchKontekst = () => (dispatch, getState) => {
-    dispatch({type: GET_KONTEKST_REQUEST});
     const valgtBank = bank(getState);
+    if (valgtBank === "admin") {
+        return; // TODO flytt admin over kontekst
+    }
 
+    dispatch({type: GET_KONTEKST_REQUEST});
     GET(valgtBank ? `/${valgtBank}/kontekst` : "/kontekst")
         .then(res => res.json())
         .then(bank => {
@@ -117,3 +128,20 @@ export const fetchHistorikk = transaksjonId => dispatch => {
         .then(transaksjoner => dispatch({type: GET_HISTORIKK_SUCCESS, transaksjoner}))
         .catch(error => dispatch({type: GET_HISTORIKK_FAILURE, error}));
 }
+
+export const fetchBanker = () => dispatch => {
+    dispatch({type: GET_BANKER_REQUEST});
+    GET("/banker")
+        .then(res => res.json())
+        .then(banker => dispatch({type: GET_BANKER_SUCCESS, banker}))
+        .catch(error => dispatch({type: GET_BANKER_FAILURE, error}));
+}
+
+export const fetchBrukere = () => dispatch => {
+    dispatch({type: GET_BRUKERE_REQUEST});
+    GET("/brukere")
+        .then(res => res.json())
+        .then(brukere => dispatch({type: GET_BRUKERE_SUCCESS, brukere}))
+        .catch(error => dispatch({type: GET_BRUKERE_FAILURE, error}));
+}
+

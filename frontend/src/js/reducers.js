@@ -12,7 +12,13 @@ import {
     GET_HISTORIKK_FAILURE,
     GET_KONTEKST_REQUEST,
     GET_KONTEKST_SUCCESS,
-    GET_KONTEKST_FAILURE
+    GET_KONTEKST_FAILURE,
+    GET_BANKER_REQUEST,
+    GET_BANKER_SUCCESS,
+    GET_BANKER_FAILURE,
+    GET_BRUKERE_REQUEST,
+    GET_BRUKERE_SUCCESS,
+    GET_BRUKERE_FAILURE
 } from './actions';
 
 const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -114,9 +120,67 @@ const kontekst = (state = {
     }
 }
 
+const banker = (state = {
+    isFetching: false, 
+    needsFetch: true, 
+    items:[], 
+}, action) => {
+    switch (action.type){
+        case GET_BANKER_REQUEST:
+            return {
+                ...state,
+                needsFetch: false,
+                isFetching: true
+            };
+        case GET_BANKER_FAILURE:
+            return {
+                ...state,
+                isFetching: false
+            };
+        case GET_BANKER_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                items: action.banker
+            };
+        default:
+            return state;
+    }
+}
+
+const brukere = (state = {
+    isFetching: false, 
+    needsFetch: true, 
+    items:[], 
+}, action) => {
+    switch (action.type){
+        case GET_BRUKERE_REQUEST:
+            return {
+                ...state,
+                needsFetch: false,
+                isFetching: true
+            };
+        case GET_BRUKERE_FAILURE:
+            return {
+                ...state,
+                isFetching: false
+            };
+        case GET_BRUKERE_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                items: action.brukere
+            };
+        default:
+            return state;
+    }
+}
+
 export default combineReducers({
     transaksjoner,
     historikk,
     kontekst,
+    banker,
+    brukere,
     form: formReducer
 });

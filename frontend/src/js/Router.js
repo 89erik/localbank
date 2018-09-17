@@ -5,6 +5,7 @@ import { Route, Switch } from 'react-router'
 
 import Bank from './components/Bank';
 import Historikk from './components/Historikk';
+import Admin from './components/Admin';
 import {fetchKontekst} from './actions';
 
 class Router extends Component {
@@ -27,6 +28,7 @@ class Router extends Component {
         return (
           <div>
             <Switch>
+                <Route exact path="/admin" component={Admin} />
                 { this.isInitialized() && [
                     <Route path="/:bankId/transaksjon/:transaksjonId/historikk" component={Historikk} key={seq++}/>,
                     <Route path="/:bankId" component={Bank} key={seq++} />

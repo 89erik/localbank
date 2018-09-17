@@ -94,7 +94,7 @@ def get_transaksjoner(bank):
     transaksjoner = db.transaksjoner.find({"deleted": {"$ne": True}, "bank": bank})
     return json.dumps(map(transaksjon_dto, transaksjoner))
 
-def transaksjon_dto(transaksjon, extended = False):
+def transaksjon_dto(transaksjon):
     return {
         "id": str(transaksjon["_id"]),
         "fra": transaksjon["fra"],
@@ -141,9 +141,41 @@ def get_bank(bank = None):
         "valuttaer": valuttaer
     })
     
+@app.route("/brukere")
+def get_brukere():
+    krev_admin()
+
+    return json.dumps(map(lambda bruker: {
+        "brukernavn": bruker["brukernavn"],
+        "banker": bruker["banker"],
+        "defaultBank": bruker["defaultBank"]
+    }, db.brukere.find()))
+
+@app.route("/banker")
+def get_banker():
+    krev_admin()
+
+    banker = db.transaksjoner.distinct("bank")
+    alle_kontoer = list(db.kontoer.find())
+
+    def kontoer(bank): return filter(lambda konto: bank == konto["bank"], alle_kontoer)
+
+    return json.dumps(map(lambda bank: {
+        "navn": bank,
+        "kontoer": map(lambda konto: {
+            "navn": konto["navn"],
+            "felles": konto["felles"],
+        }, kontoer(bank))
+    }, banker))
+
+
 def krev_tilgang_til_bank(bank):
     if not bank in hent_bruker_fra_db()["banker"]:
         raise Forbidden("Du har ikke tilgang til bank '%s'" % bank)
+
+def krev_admin():
+    if not hent_bruker_fra_db()["admin"]:
+        raise Forbidden("Krever admintilgang")
 
 def no_content():
     return ("", 204)

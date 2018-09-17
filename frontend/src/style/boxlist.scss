@@ -1,0 +1,39 @@
+$addition: #00ca00;
+
+.boxlist {
+  display: flex;
+  flex-wrap: wrap;
+
+  .box {
+      border: 2px solid gray;
+      border-radius: 5px;
+      padding: 5px;
+      margin: 3px;
+      width: 100px;
+      height: 100px;
+      cursor: pointer;
+
+      .header {
+          font-weight: 600;
+      }
+
+      &:hover {
+          border-color: black;
+      }
+
+      &.add{
+          border-style: dashed;
+          font-size: 50px;
+          color: gray;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          &:hover {
+              color: $addition;
+              border-style: solid;
+              border-color: $addition;
+          }
+      }
+
+  }
+}
