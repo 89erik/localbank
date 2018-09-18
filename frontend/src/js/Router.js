@@ -9,33 +9,44 @@ import Admin from './components/Admin';
 import {fetchKontekst} from './actions';
 
 class Router extends Component {
+
+    render() {
+        return (
+          <div>
+            <Switch>
+                <Route path="/admin" component={Admin} />
+                <SubStateDependence path="/"
+                                    subState={this.props.kontekst} 
+                                    initialize={() => this.props.dispatch(fetchKontekst())}>
+                    <Route exact path="/:bankId/transaksjon/:transaksjonId/historikk" component={Historikk}/>
+                    <Route exact path="/:bankId" component={Bank} />
+                </SubStateDependence>
+            </Switch>
+          </div>
+        );
+    }
+}
+
+class SubStateDependence extends Component {
     componentWillMount() {
-        if (this.props.kontekst.needsFetch) {
-            this.props.dispatch(fetchKontekst());
+        if (this.props.subState.needsFetch) {
+            this.props.initialize();
         }
     }
 
     isInitialized() {
-        return !this.props.kontekst.isFetching && !this.props.kontekst.needsFetch;
+        return !this.props.subState.isFetching && !this.props.subState.needsFetch;
     }
-
+    
     renderLoading() {
         return <img src="loading.gif" className="loading-gif" alt="Laster..."/>
     }
 
     render() {
-        let seq = 0;
         return (
-          <div>
-            <Switch>
-                <Route exact path="/admin" component={Admin} />
-                { this.isInitialized() && [
-                    <Route path="/:bankId/transaksjon/:transaksjonId/historikk" component={Historikk} key={seq++}/>,
-                    <Route path="/:bankId" component={Bank} key={seq++} />
-                ]}
-                <Route path="/" render={this.renderLoading} key={seq++} />
-            </Switch>
-          </div>
+            <Route path={this.props.path} render={() => 
+                this.isInitialized() ? this.props.children : this.renderLoading()
+            } />
         );
     }
 }
