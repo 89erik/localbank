@@ -121,7 +121,7 @@ def hent_bruker_fra_db():
 
 @app.route("/kontekst")
 @app.route("/<bank>/kontekst")
-def get_bank(bank = None):
+def get_kontekst(bank = None):
     bruker = hent_bruker_fra_db()
     bank = bank or bruker["defaultBank"]
     if bank not in bruker["banker"]:
@@ -155,9 +155,7 @@ def get_brukere():
 def get_banker():
     krev_admin()
 
-    banker = db.transaksjoner.distinct("bank")
     alle_kontoer = list(db.kontoer.find())
-
     def kontoer(bank): return filter(lambda konto: bank == konto["bank"], alle_kontoer)
 
     return json.dumps(map(lambda bank: {
@@ -166,7 +164,7 @@ def get_banker():
             "navn": konto["navn"],
             "felles": konto["felles"],
         }, kontoer(bank))
-    }, banker))
+    }, set(map(lambda konto: konto["bank"], alle_kontoer))))
 
 
 def krev_tilgang_til_bank(bank):
