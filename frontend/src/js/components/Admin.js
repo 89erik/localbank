@@ -1,23 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import {push} from 'connected-react-router';
 
 import BoxList from './BoxList';
-import {fetchBanker, fetchBrukere} from '../actions';
 
 class Admin extends Component {
-    componentWillMount(){
-        if (this.props.banker.needsFetch) {
-            this.props.dispatch(fetchBanker());
-        }
-        if (this.props.brukere.needsFetch) {
-            this.props.dispatch(fetchBrukere());
-        }
-    }
 
     render() {
-        if (this.props.brukere.items.length === 0 || this.props.banker.items === 0) {
-            return null;
-        }
         return (
           <div className="admin">
             <h2>Banker</h2>
@@ -25,7 +14,7 @@ class Admin extends Component {
                 {this.props.banker.items.map(b => ({
                     header: b.navn,
                     lines: b.kontoer.filter(k => !k.felles).map(k => k.navn),
-                    onClick: () => console.log("ikke implementert")
+                    onClick: () => this.props.dispatch(push(`/admin/bank/${b.navn}`))
                 }))}
             </BoxList>
             

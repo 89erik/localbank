@@ -1,5 +1,6 @@
 import {combineReducers} from 'redux';
 import { reducer as formReducer } from 'redux-form'
+import { required } from './utils/validators';
 
 import {
     GET_TRANSAKSJONER_REQUEST, 
@@ -18,7 +19,15 @@ import {
     GET_BANKER_FAILURE,
     GET_BRUKERE_REQUEST,
     GET_BRUKERE_SUCCESS,
-    GET_BRUKERE_FAILURE
+    GET_BRUKERE_FAILURE,
+    POST_BANK_REQUEST,
+    POST_BANK_SUCCESS,
+    POST_BANK_FAILURE,
+    EDITABLE_LIST_INIT,
+    EDITABLE_LIST_APPEND,
+    EDITABLE_LIST_REMOVE,
+    EDITABLE_LIST_SELECT,
+    EDITABLE_LIST_INPUT
 } from './actions';
 
 const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -123,6 +132,7 @@ const kontekst = (state = {
 const banker = (state = {
     isFetching: false, 
     needsFetch: true, 
+    isPosting: false,
     items:[], 
 }, action) => {
     switch (action.type){
@@ -142,6 +152,17 @@ const banker = (state = {
                 ...state,
                 isFetching: false,
                 items: action.banker
+            };
+        case POST_BANK_REQUEST:
+            return {
+                ...state,
+                isPosting: true
+            };
+        case POST_BANK_FAILURE:
+        case POST_BANK_SUCCESS:
+            return {
+                ...state,
+                isPosting: true
             };
         default:
             return state;
@@ -176,11 +197,52 @@ const brukere = (state = {
     }
 }
 
+const editableList = (state = {
+    list: [], 
+    selected: undefined,
+    inputField: ""
+}, action) => {
+    switch (action.type) {
+        case EDITABLE_LIST_INIT:
+            return {
+                ...state,
+                list: action.initialList.map(line => line.value),
+                selected: (action.initialList.find(line => line.selected) || {}).value
+            };
+        case EDITABLE_LIST_APPEND:
+            const allowed = required(state.inputField) === undefined;
+            return allowed ? {
+                ...state,
+                list: [...state.list, state.inputField],
+                inputField: ""
+            } : state;
+        case EDITABLE_LIST_REMOVE:
+            return {
+                ...state,
+                list: state.list.filter(line => line !== action.line),
+                selected: action.line === state.selected ? undefined : state.selected
+            };
+        case EDITABLE_LIST_SELECT:
+            return {
+                ...state,
+                selected: action.line
+            };
+        case EDITABLE_LIST_INPUT:
+            return {
+                ...state,
+                inputField: action.inputField
+            };
+        default:
+            return state;
+    }
+}
+
 export default combineReducers({
     transaksjoner,
     historikk,
     kontekst,
     banker,
     brukere,
+    editableList,
     form: formReducer
 });

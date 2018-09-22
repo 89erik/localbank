@@ -6,18 +6,39 @@ import { Route, Switch } from 'react-router'
 import Bank from './components/Bank';
 import Historikk from './components/Historikk';
 import Admin from './components/Admin';
-import {fetchKontekst} from './actions';
+import BankAdmin from './components/BankAdmin';
+
+import {
+    fetchKontekst, 
+    fetchBanker, 
+    fetchBrukere
+} from './actions';
 
 class Router extends Component {
 
     render() {
+        const adminSubStates = [{
+                ...this.props.brukere,
+                fetch: () => this.props.dispatch(fetchBrukere())
+            },{
+                ...this.props.banker,
+                fetch: () => this.props.dispatch(fetchBanker())
+            }];
+
+        const kontekst = {
+            ...this.props.kontekst, 
+            fetch: () => this.props.dispatch(fetchKontekst())
+        };
+
         return (
           <div>
             <Switch>
-                <Route path="/admin" component={Admin} />
-                <SubStateDependence path="/"
-                                    subState={this.props.kontekst} 
-                                    initialize={() => this.props.dispatch(fetchKontekst())}>
+                <SubStateDependence path="/admin" subStates={adminSubStates}>
+                    <Route exact path="/admin" component={Admin} />
+                    <Route exact path="/admin/bank/:bankId" component={BankAdmin} />
+                </SubStateDependence>
+
+                <SubStateDependence path="/" subState={kontekst}>
                     <Route exact path="/:bankId/transaksjon/:transaksjonId/historikk" component={Historikk}/>
                     <Route exact path="/:bankId" component={Bank} />
                 </SubStateDependence>
@@ -28,14 +49,18 @@ class Router extends Component {
 }
 
 class SubStateDependence extends Component {
+    subStates() {
+        return this.props.subStates || [this.props.subState];
+    }
+
     componentWillMount() {
-        if (this.props.subState.needsFetch) {
-            this.props.initialize();
-        }
+        this.subStates()
+            .filter(s => s.needsFetch)
+            .forEach(s => s.fetch());
     }
 
     isInitialized() {
-        return !this.props.subState.isFetching && !this.props.subState.needsFetch;
+        return this.subStates().every(s => !s.isFetching && !s.needsFetch);
     }
     
     renderLoading() {
@@ -53,6 +78,8 @@ class SubStateDependence extends Component {
 
 const mapStateToProps = state => ({
     kontekst: state.kontekst,
+    banker: state.banker,
+    brukere: state.brukere,
     pathname: state.router.location.pathname // må tas inn for å rendre etter push
 });
 

@@ -1,0 +1,49 @@
+@import "colors";
+
+.editablelist {
+    
+  .line > form > input {
+      width: 130px;
+      font-size: 18px;
+      border-radius: 5px;
+      padding-left: 4px;
+  }
+
+  .line, .line > form{
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      font-size: 18px;
+      .line-op {
+          display: flex;
+          justify-content: center;
+          padding-top: 2px;
+          width: 20px;
+          height: 20px;
+          border: 2px solid;
+          border-radius: 5px;
+          margin: 3px 8px;
+          cursor: pointer;
+          font-size: 20px;
+      }
+      .delete {
+          border-color: $subtraction;
+          color: $subtraction;
+          &:hover+* {
+              color: $subtraction;
+          }
+      }
+
+      .add{
+          border-color: $addition;
+          color: $addition;
+          &:hover+span {
+              color: $addition;
+          }
+          &:hover+input {
+              border-color: $addition;
+          }
+      }
+
+  }
+}

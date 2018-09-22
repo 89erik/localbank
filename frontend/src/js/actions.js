@@ -31,7 +31,17 @@ export const GET_BANKER_REQUEST = "GET_BANKER_REQUEST";
 export const GET_BANKER_SUCCESS = "GET_BANKER_SUCCESS";
 export const GET_BANKER_FAILURE = "GET_BANKER_FAILURE";
 
+export const POST_BANK_REQUEST = "POST_BANK_REQUEST";
+export const POST_BANK_SUCCESS = "POST_BANK_SUCCESS";
+export const POST_BANK_FAILURE = "POST_BANK_FAILURE";
+
 export const SELECT_TRANSAKSJON = "SELECT_TRANSAKSJON";
+
+export const EDITABLE_LIST_INIT = "EDITABLE_LIST_INIT";
+export const EDITABLE_LIST_APPEND = "EDITABLE_LIST_APPEND";
+export const EDITABLE_LIST_REMOVE = "EDITABLE_LIST_REMOVE";
+export const EDITABLE_LIST_SELECT = "EDITABLE_LIST_SELECT";
+export const EDITABLE_LIST_INPUT = "EDITABLE_LIST_INPUT";
 
 export const selectTransaksjon = transaksjonId => ({
     type: SELECT_TRANSAKSJON,
@@ -145,3 +155,13 @@ export const fetchBrukere = () => dispatch => {
         .catch(error => dispatch({type: GET_BRUKERE_FAILURE, error}));
 }
 
+export const postBank = bank => (dispatch, getState) => {
+    dispatch({type: POST_BANK_REQUEST}); 
+    POST("/banker", bank)
+        .then(() => {
+            dispatch({type: POST_BANK_SUCCESS})
+            dispatch(fetchBanker());
+            dispatch(push("/admin"));
+        })
+        .catch(error => dispatch({type: POST_BANK_FAILURE, error}));
+}

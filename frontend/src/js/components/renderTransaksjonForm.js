@@ -5,6 +5,7 @@ import Select from 'react-select';
 import 'react-select/dist/react-select.css'
 import '../../style/transaksjoner.css'
 
+import {required} from '../utils/validators';
 
 const renderSelector = (field) => (
     <Select
@@ -38,7 +39,6 @@ export const valuttaAsOption = v => ({
 });
 
 
-const required = v => (v||"").length === 0 ? "Påkrevd" : undefined;
 
 export default props => (
     <form onSubmit={props.handleSubmit} className="transaksjon-form">
