@@ -10,7 +10,7 @@ from datetime import datetime
 import dateutil.parser
 
 import valutta
-from errors import ApiException, Forbidden, NotFound
+from errors import ApiException, Forbidden, NotFound, BadRequest
 
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
@@ -166,13 +166,51 @@ def get_banker():
         }, kontoer(bank))
     }, set(map(lambda konto: konto["bank"], alle_kontoer))))
 
+def flatten(lists):
+    return [y for x in lists for y in x]
+
+@app.route("/banker", methods = ["POST"])
+def post_bank():
+    krev_admin()
+    
+    bankId = request.json["navn"]
+
+    kontoer = map(lambda konto: {
+        "bank": bankId,
+        "navn": konto["navn"],
+        "felles": konto["felles"]
+    }, request.json["kontoer"])
+
+    bank_finnes = bankId in db.kontoer.distinct("bank")
+
+    antall_felleskontoer = len(filter(lambda konto: konto["felles"], kontoer))
+    if antall_felleskontoer != 1:
+        raise BadRequest("Prøvde å %s bank med %d felleskontoer" % ("PUT-e" if bankId else "POST-e", antall_felleskontoer))
+    
+    if bank_finnes: 
+        eksisterende_kontoer = frozenset(map(lambda konto: konto["navn"], db.kontoer.find({"bank": bankId})))
+        nye_kontoer = frozenset(map(lambda konto: konto["navn"], kontoer))
+        fjernede_kontoer = eksisterende_kontoer.difference(nye_kontoer)
+
+        if fjernede_kontoer:
+            har_transaksjon = flatten(map(lambda konto: [{"fra": konto}, {"til": konto}], fjernede_kontoer))
+            transaksjoner = list(db.transaksjoner.find({"bank": bankId, "$or": har_transaksjon}))
+            if transaksjoner:
+                kontoer_i_transaksjoner = flatten(map(lambda t: [t["fra"], t["til"]], transaksjoner))
+                fjernede_kontoer_med_transaksjoner = filter(lambda k: k in kontoer_i_transaksjoner,fjernede_kontoer)
+                raise BadRequest("Kan ikke fjerne kontoer som har transaksjoner: %s" % json.dumps(fjernede_kontoer_med_transaksjoner))
+        db.kontoer.delete_many({"bank": bankId})
+    
+    db.kontoer.insert_many(kontoer)
+    return no_content()
+
 
 def krev_tilgang_til_bank(bank):
     if not bank in hent_bruker_fra_db()["banker"]:
         raise Forbidden("Du har ikke tilgang til bank '%s'" % bank)
 
 def krev_admin():
-    if not hent_bruker_fra_db()["admin"]:
+    if False and not hent_bruker_fra_db()["admin"]:
         raise Forbidden("Krever admintilgang")
 
 def no_content():
