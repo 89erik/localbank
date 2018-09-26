@@ -162,7 +162,7 @@ const banker = (state = {
         case POST_BANK_SUCCESS:
             return {
                 ...state,
-                isPosting: true
+                isPosting: false
             };
         default:
             return state;
