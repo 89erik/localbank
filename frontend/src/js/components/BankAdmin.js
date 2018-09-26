@@ -20,6 +20,7 @@ class BankAdmin extends Component {
         };
         this.props.dispatch(postBank(bank));
     }
+
     slettBank() {
         throw "ikke implementert"; // TODO
     }
@@ -30,7 +31,10 @@ class BankAdmin extends Component {
         return (
           <div className="bank-admin">
             <h2>Kontoer i {bank}</h2>
-            <EditableList lagre={(lines, selected) => this.lagreKontoer(lines,selected)} slett={() => this.slettBank()} isPersisting={this.props.banker.isPosting}>
+            <EditableList lagre={(lines, selected) => this.lagreKontoer(lines,selected)} 
+                          slett={() => this.slettBank()} 
+                          isPersisting={this.props.banker.isPosting}
+                      >
                 {kontoer.map(konto => ({
                     value: konto.navn,
                     selected: konto.felles

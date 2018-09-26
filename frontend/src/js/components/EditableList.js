@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Field, reduxForm, submit } from 'redux-form'
-
-import {required} from '../utils/validators';
 import '../../style/editablelist.css';
 
 import {
@@ -44,8 +41,7 @@ class EditableList extends Component {
         return (
           <div className="line" key={seq++}>
             <span className="line-op delete" onClick={() => this.props.dispatch(remove(line))}>-</span>
-            <span>{line}</span>
-            {selected && <span className="selected"></span>}
+            <span className={(selected ? "selected" : "")}>{line}</span>
           </div>
         );
     }
