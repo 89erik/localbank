@@ -210,7 +210,7 @@ def krev_tilgang_til_bank(bank):
         raise Forbidden("Du har ikke tilgang til bank '%s'" % bank)
 
 def krev_admin():
-    if False and not hent_bruker_fra_db()["admin"]:
+    if not hent_bruker_fra_db().get("admin", False):
         raise Forbidden("Krever admintilgang")
 
 def no_content():
