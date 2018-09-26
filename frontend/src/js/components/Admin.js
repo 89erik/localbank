@@ -10,7 +10,7 @@ class Admin extends Component {
         return (
           <div className="admin">
             <h2>Banker</h2>
-            <BoxList onAdd={() => console.log("ikke implementert")}>
+            <BoxList onAdd={() => this.props.dispatch(push("/admin/bank"))}>
                 {this.props.banker.items.map(b => ({
                     header: b.navn,
                     lines: b.kontoer.filter(k => !k.felles).map(k => k.navn),

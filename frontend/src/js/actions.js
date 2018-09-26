@@ -41,7 +41,8 @@ export const EDITABLE_LIST_INIT = "EDITABLE_LIST_INIT";
 export const EDITABLE_LIST_APPEND = "EDITABLE_LIST_APPEND";
 export const EDITABLE_LIST_REMOVE = "EDITABLE_LIST_REMOVE";
 export const EDITABLE_LIST_SELECT = "EDITABLE_LIST_SELECT";
-export const EDITABLE_LIST_INPUT = "EDITABLE_LIST_INPUT";
+export const EDITABLE_LIST_NEW_LINE_INPUT = "EDITABLE_LIST_NEW_LINE_INPUT";
+export const EDITABLE_LIST_HEADLINE_INPUT = "EDITABLE_LIST_HEADLINE_INPUT";
 
 export const selectTransaksjon = transaksjonId => ({
     type: SELECT_TRANSAKSJON,
@@ -111,9 +112,6 @@ export const deleteTransaksjon = transaksjon => dispatch => {
 
 export const fetchKontekst = () => (dispatch, getState) => {
     const valgtBank = bank(getState);
-    if (valgtBank === "admin") {
-        return; // TODO flytt admin over kontekst
-    }
 
     dispatch({type: GET_KONTEKST_REQUEST});
     GET(valgtBank ? `/${valgtBank}/kontekst` : "/kontekst")
@@ -155,7 +153,16 @@ export const fetchBrukere = () => dispatch => {
         .catch(error => dispatch({type: GET_BRUKERE_FAILURE, error}));
 }
 
-export const postBank = bank => (dispatch, getState) => {
+export const postBank = bankId => (dispatch, getState) => {
+    const state = getState().editableList;
+    const bank = {
+        navn: bankId || state.headlineInput,
+        kontoer: state.list.map(line => ({
+            navn: line,
+            felles: line === state.selected
+        }))
+    };
+
     dispatch({type: POST_BANK_REQUEST}); 
     POST("/banker", bank)
         .then(() => {

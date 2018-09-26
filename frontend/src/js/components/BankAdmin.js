@@ -10,30 +10,20 @@ class BankAdmin extends Component {
         return this.props.match.params.bankId;
     }
 
-    lagreKontoer(lines, selected) {
-        const bank = {
-            navn: this.bank(),
-            kontoer: lines.map(line => ({
-                navn: line,
-                felles: line === selected
-            }))
-        };
-        this.props.dispatch(postBank(bank));
-    }
-
     slettBank() {
         throw "ikke implementert"; // TODO
     }
 
     render() {
         const bank = this.bank();
-        const kontoer = this.props.banker.items.find(b => b.navn === bank).kontoer;
+        const kontoer = bank ? this.props.banker.items.find(b => b.navn === bank).kontoer : [];
         return (
           <div className="bank-admin">
-            <h2>Kontoer i {bank}</h2>
-            <EditableList lagre={(lines, selected) => this.lagreKontoer(lines,selected)} 
+            <h2>{bank ? `Kontoer i ${bank}` : "Opprett ny bank"}</h2>
+            <EditableList lagre={() => this.props.dispatch(postBank(this.bank()))} 
                           slett={() => this.slettBank()} 
                           isPersisting={this.props.banker.isPosting}
+                          inputHeadline={!bank}
                       >
                 {kontoer.map(konto => ({
                     value: konto.navn,

@@ -35,6 +35,7 @@ class Router extends Component {
             <Switch>
                 <SubStateDependence path="/admin" subStates={adminSubStates}>
                     <Route exact path="/admin" component={Admin} />
+                    <Route exact path="/admin/bank" component={BankAdmin} />
                     <Route exact path="/admin/bank/:bankId" component={BankAdmin} />
                 </SubStateDependence>
 

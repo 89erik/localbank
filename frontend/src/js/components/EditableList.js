@@ -7,7 +7,8 @@ import {
     EDITABLE_LIST_APPEND,
     EDITABLE_LIST_REMOVE,
     EDITABLE_LIST_SELECT,
-    EDITABLE_LIST_INPUT
+    EDITABLE_LIST_NEW_LINE_INPUT,
+    EDITABLE_LIST_HEADLINE_INPUT
 } from '../actions';
 
 const init = initialList => ({
@@ -47,48 +48,56 @@ class EditableList extends Component {
     }
 
     render() {
-        const lagre = () => 
-            this.props.lagre(this.props.list, this.props.selected);
         return (
             <div className="editablelist">
+                {this.props.inputHeadline && (
+                    <div>
+                        <label>Navn:</label>
+                        <HeadlineInputField />
+                    </div>
+                )}
                 {this.props.list.map(l => this.renderLine(l))}
                 <div className="line" key={seq++}>
                     <span className="line-op add" onClick={() => this.props.dispatch(append())}>
                         +
                     </span>
-                    <InputField />
+                    <NewLineInputField />
                 </div>
-                <button onClick={lagre} disabled={this.props.isPersisting}>
+                <button onClick={this.props.lagre} disabled={this.props.isPersisting}>
                     Lagre
                 </button>
-                <button onClick={()=>this.props.slett()} disabled={this.props.isPersisting}>
-                    Slett
-                </button>
+                {!this.props.inputHeadline && 
+                    <button onClick={()=>this.props.slett()} disabled={this.props.isPersisting}>
+                        Slett
+                    </button>
+                }
             </div>
         );
     }
 }
 
-const InputField = connect(
-    state => ({value: state.editableList.inputField}),
+const inputFieldRenderer = actionType => props => (
+    <input 
+        autoComplete="off" 
+        type="text" 
+        value={props.value} 
+        onChange={event => props.dispatch({
+            type: actionType,
+            inputField: event.target.value
+        })}
+    />
+);
+
+const HeadlineInputField = connect(
+    state => ({value: state.editableList.headlineInput}),
     dispatch => ({dispatch})
-)(class extends Component {
-    render(){
-        return(
-            <input 
-                autoComplete="off" 
-                type="text" 
-                value={this.props.value} 
-                onChange={event => {
-                    this.props.dispatch({
-                        type: EDITABLE_LIST_INPUT,
-                        inputField: event.target.value
-                    });
-                }}
-            />
-        )
-    }
-});
+)(inputFieldRenderer(EDITABLE_LIST_HEADLINE_INPUT));
+
+const NewLineInputField = connect(
+    state => ({value: state.editableList.newLineInput}),
+    dispatch => ({dispatch})
+)(inputFieldRenderer(EDITABLE_LIST_NEW_LINE_INPUT));
+
 
 const mapStateToProps = state => ({
     list: state.editableList.list,

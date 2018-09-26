@@ -27,7 +27,8 @@ import {
     EDITABLE_LIST_APPEND,
     EDITABLE_LIST_REMOVE,
     EDITABLE_LIST_SELECT,
-    EDITABLE_LIST_INPUT
+    EDITABLE_LIST_NEW_LINE_INPUT,
+    EDITABLE_LIST_HEADLINE_INPUT
 } from './actions';
 
 const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
@@ -200,21 +201,25 @@ const brukere = (state = {
 const editableList = (state = {
     list: [], 
     selected: undefined,
-    inputField: ""
+    newLineInput: "",
+    headlineInput: ""
 }, action) => {
     switch (action.type) {
         case EDITABLE_LIST_INIT:
             return {
                 ...state,
                 list: action.initialList.map(line => line.value),
-                selected: (action.initialList.find(line => line.selected) || {}).value
+                selected: (action.initialList.find(line => line.selected) || {}).value,
+                newLineInput: "",
+                headlineInput: ""
             };
         case EDITABLE_LIST_APPEND:
-            const allowed = required(state.inputField) === undefined;
+            const allowed = required(state.newLineInput) === undefined;
             return allowed ? {
                 ...state,
-                list: [...state.list, state.inputField],
-                inputField: ""
+                list: [...state.list, state.newLineInput],
+                selected: state.selected || state.newLineInput,
+                newLineInput: "",
             } : state;
         case EDITABLE_LIST_REMOVE:
             return {
@@ -227,11 +232,16 @@ const editableList = (state = {
                 ...state,
                 selected: action.line
             };
-        case EDITABLE_LIST_INPUT:
+        case EDITABLE_LIST_NEW_LINE_INPUT:
             return {
                 ...state,
-                inputField: action.inputField
+                newLineInput: action.inputField
             };
+        case EDITABLE_LIST_HEADLINE_INPUT:
+            return {
+                ...state,
+                headlineInput: action.inputField
+            }
         default:
             return state;
     }
