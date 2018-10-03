@@ -61,7 +61,7 @@ export default props => (
             placeholder="Beløp"
             component="input" 
             type="number"
-            autoComplete="off"
+            step="0.001"
             validate={required}
             className="simple-field"
         />
