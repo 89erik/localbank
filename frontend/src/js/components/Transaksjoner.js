@@ -77,7 +77,8 @@ class Transaksjoner extends Component {
             accessor: "kommentar",
             className: "kommentar",
             headerClassName: "kommentar",
-            Cell: props => this.renderColumn(props)
+            Cell: props => this.renderColumn(props),
+            minWidth: 250
         }
     ];
 
