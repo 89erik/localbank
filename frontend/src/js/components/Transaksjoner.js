@@ -41,9 +41,7 @@ class Transaksjoner extends Component {
     renderColumn (props) {
         const v = props.column.id === "belop" && props.original.valutta;
         const title = v.kurs && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}, pluss 2% valuttapåslag fra banken`
-        return <div
-                    title={title || null}
-                    onClick={() => this.props.dispatch(selectTransaksjon(props.original.id))}>
+        return <div title={title || null}>
                 {props.value}
             </div>;
     }
@@ -115,6 +113,7 @@ class Transaksjoner extends Component {
                     defaultSorted={[{id: "timestamp", desc: true}]}
                     loading={this.props.transaksjoner.isFetching}
                     getTrProps = {(state, rowInfo) => ({
+                        onClick: () => this.props.dispatch(selectTransaksjon(rowInfo.original.id)),
                         className: rowInfo && rowInfo.original.deleted ? "deleted" : ""
                     })}
                 />
