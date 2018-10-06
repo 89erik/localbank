@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router'
+import Popup from 'reactjs-popup';
 
 import Bank from './components/Bank';
 import Historikk from './components/Historikk';
@@ -9,14 +10,27 @@ import Admin from './components/Admin';
 import BankAdmin from './components/BankAdmin';
 
 import {
+    dismissError,
     fetchKontekst, 
     fetchBanker, 
     fetchBrukere
 } from './actions';
 
 class Router extends Component {
-
+    renderErrorMessage() {
+        return (
+            <div>
+                <h1>Feil</h1>
+                <p>{this.props.error.message}</p>
+                {this.props.error.fatal ? null : <button onClick={() => this.props.dispatch(dismissError())}>OK</button>}
+            </div>
+        );
+    }
     render() {
+        if (this.props.error.message && this.props.error.fatal) {
+            return this.renderErrorMessage();
+        }
+
         const adminSubStates = [{
                 ...this.props.brukere,
                 fetch: () => this.props.dispatch(fetchBrukere())
@@ -44,6 +58,9 @@ class Router extends Component {
                     <Route exact path="/:bankId" component={Bank} />
                 </SubStateDependence>
             </Switch>
+            <Popup open={!!this.props.error.message}>
+                {this.renderErrorMessage()}
+            </Popup>
           </div>
         );
     }
@@ -78,6 +95,7 @@ class SubStateDependence extends Component {
 }
 
 const mapStateToProps = state => ({
+    error: state.error,
     kontekst: state.kontekst,
     banker: state.banker,
     brukere: state.brukere,

@@ -41,6 +41,8 @@ export const EDITABLE_LIST_NEW_LINE_INPUT = "EDITABLE_LIST_NEW_LINE_INPUT";
 export const EDITABLE_LIST_HEADLINE_INPUT = "EDITABLE_LIST_HEADLINE_INPUT";
 
 export const SET_VIS_SLETTEDE_TRANSAKSJONER = "SET_VIS_SLETTEDE_TRANSAKSJONER";
+export const UNSPECIFIED_ERROR = "UNSPECIFIED_ERROR";
+export const DISMISS_ERROR = "DISMISS_ERROR";
 
 export const selectTransaksjon = transaksjonId => ({
     type: SELECT_TRANSAKSJON,
@@ -77,7 +79,8 @@ export const postTransaksjon = transaksjon => (dispatch, getState) => {
             dispatch(reset("nyTransaksjon"));
             dispatch({type: POST_TRANSAKSJON_SUCCESS});
             dispatch(fetchTransaksjoner(bank))
-        });
+        })
+        .catch(error => dispatch({type: POST_TRANSAKSJON_FAILURE, error}));
 }
 
 export const putTransaksjon = (id, transaksjon) => (dispatch, getState) => {
@@ -95,7 +98,8 @@ export const putTransaksjon = (id, transaksjon) => (dispatch, getState) => {
         .then(() => {
             dispatch({type: POST_TRANSAKSJON_SUCCESS});
             dispatch(fetchTransaksjoner(bank))
-        });
+        })
+        .catch(error => dispatch({type: POST_TRANSAKSJON_FAILURE, error}));
 }
 
 export const deleteTransaksjon = transaksjon => dispatch => {
@@ -105,14 +109,14 @@ export const deleteTransaksjon = transaksjon => dispatch => {
         .then(() => {
             dispatch({type: DELETE_TRANSAKSJON_SUCCESS, transaksjonId: transaksjon.id});
             dispatch(fetchTransaksjoner())
-        });
+        })
+        .catch(error => dispatch({type: UNSPECIFIED_ERROR, error}));
 }
 
 export const restoreTransaksjon = transaksjon => dispatch => {
     PUT("/transaksjon/restore/" + transaksjon.id)
-        .then(() => {
-            dispatch(fetchTransaksjoner())
-        });
+        .then(() => dispatch(fetchTransaksjoner()))
+        .catch(error => dispatch({type: UNSPECIFIED_ERROR, error}));
 }
 
 export const fetchKontekst = () => (dispatch, getState) => {
@@ -173,4 +177,8 @@ export const postBank = bankId => (dispatch, getState) => {
 export const setVisSlettedeTransaksjoner = visSlettede => ({
     type: SET_VIS_SLETTEDE_TRANSAKSJONER,
     visSlettede
+});
+
+export const dismissError = () => ({
+    type: DISMISS_ERROR
 });

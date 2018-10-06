@@ -6,6 +6,7 @@ import {
     GET_TRANSAKSJONER_REQUEST, 
     GET_TRANSAKSJONER_SUCCESS, 
     GET_TRANSAKSJONER_FAILURE,
+    POST_TRANSAKSJON_FAILURE,
     POST_TRANSAKSJON_SUCCESS, 
     SELECT_TRANSAKSJON,
     GET_KONTEKST_REQUEST,
@@ -26,8 +27,34 @@ import {
     EDITABLE_LIST_SELECT,
     EDITABLE_LIST_NEW_LINE_INPUT,
     EDITABLE_LIST_HEADLINE_INPUT,
-    SET_VIS_SLETTEDE_TRANSAKSJONER
+    SET_VIS_SLETTEDE_TRANSAKSJONER,
+    DISMISS_ERROR,
+    UNSPECIFIED_ERROR,
 } from './actions';
+
+const error = (state = {message: null, fatal: false}, action) => {
+    switch (action.type) {
+        case DISMISS_ERROR:
+            return {message: null};
+        case UNSPECIFIED_ERROR:
+        case GET_TRANSAKSJONER_FAILURE:
+        case POST_TRANSAKSJON_FAILURE:
+        case GET_BANKER_FAILURE:
+        case GET_BRUKERE_FAILURE:
+        case POST_BANK_FAILURE:
+            return {
+                message: action.error,
+                fatal: false
+            };
+        case GET_KONTEKST_FAILURE:
+            return {
+                message: action.error,
+                fatal: true
+            };
+        default:
+            return state;
+    }    
+}
 
 const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[], visSlettede: false}, action) => {
     switch (action.type){
@@ -87,11 +114,6 @@ const kontekst = (state = {
                 ...state,
                 needsFetch: false,
                 isFetching: true
-            };
-        case GET_KONTEKST_FAILURE:
-            return {
-                ...state,
-                isFetching: false
             };
         case GET_KONTEKST_SUCCESS:
             return {
@@ -224,6 +246,7 @@ const editableList = (state = {
 }
 
 export default combineReducers({
+    error,
     transaksjoner,
     kontekst,
     banker,

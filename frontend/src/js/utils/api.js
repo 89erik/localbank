@@ -9,3 +9,9 @@ export const DELETE = (url) => callApi(url, "DELETE");
 
 const callApi = (path, method, body) =>
     fetch("/api"+path, {method, body, headers: jsonHeader, credentials: "include"})
+    .then(res => {
+        if (!res.ok) {
+            return res.text().then(message => Promise.reject(message));
+        }
+        return res;
+    });
