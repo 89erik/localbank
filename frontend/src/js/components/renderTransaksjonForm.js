@@ -15,6 +15,7 @@ const renderSelector = (field) => (
         clearable={field.clearable || false}
         options={field.options}
         placeholder={field.placeholder}
+        disabled={field.disabled}
         autoBlur
     />
 )
@@ -25,6 +26,7 @@ const renderDatePicker = (field) => (
         value={field.input.value}
         locale="nb-NO"
         clearIcon={null}
+        disabled={field.disabled}
     />
 );
 
@@ -48,6 +50,7 @@ export default props => (
             options={props.kontoer.map(k => kontoAsOption("Fra", k))}
             placeholder={"Fra konto"}
             validate={required}
+            disabled={props.displayOnly}
         />
         <Field 
             name="til" 
@@ -55,6 +58,7 @@ export default props => (
             options={props.kontoer.map(k => kontoAsOption("Til", k))}
             placeholder={"Til konto"}
             validate={required}
+            disabled={props.displayOnly}
         />
         <Field 
             name="belop" 
@@ -64,16 +68,19 @@ export default props => (
             step="0.001"
             validate={required}
             className="simple-field"
+            disabled={props.displayOnly}
         />
         <Field 
             name="valutta" 
             component={renderSelector}
             options={props.valuttaer.map(valuttaAsOption)}
             clearable={false}
+            disabled={props.displayOnly}
         />
         <Field
             name="timestamp"
             component={renderDatePicker}
+            disabled={props.displayOnly}
         />
         <Field 
             name="kommentar" 
@@ -82,8 +89,9 @@ export default props => (
             autoComplete="off"
             type="text"
             className="simple-field"
+            disabled={props.displayOnly}
         />
-        <button type="submit" className="Select-control">Lagre</button>
+        {(!props.displayOnly || null) && <button type="submit" className="Select-control">Lagre</button> }
         {props.renderAmendments && props.renderAmendments()}
     </form>
 );

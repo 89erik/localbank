@@ -30,7 +30,7 @@ class TransaksjonPopup extends React.Component {
     }
 
     erSlettet() {
-        return this.props.transaksjon.deleted;
+        return (this.props.transaksjon || {}).deleted;
     }
 
     render() {
@@ -41,6 +41,7 @@ class TransaksjonPopup extends React.Component {
                     initialValues={this.editableTransaksjon()}
                     kontoer={this.props.kontoer}
                     valuttaer={this.props.valuttaer}
+                    displayOnly={this.erSlettet()}
                     renderAmendments={() => [
                         <button 
                             key="delete"
