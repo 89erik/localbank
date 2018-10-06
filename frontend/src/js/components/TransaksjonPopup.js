@@ -25,6 +25,7 @@ class TransaksjonPopup extends React.Component {
         }
     }
     render() {
+        const harHistorikk = this.props.transaksjon && (this.props.transaksjon.forgjenger || this.props.transaksjon.etterkommer);
         return (
             <Popup open={!!this.props.transaksjon} onClose={this.props.onClose}>
                 <EditTransaksjonForm 
@@ -40,7 +41,7 @@ class TransaksjonPopup extends React.Component {
                         >
                             Slett
                         </button>,
-                        <button
+                        harHistorikk && <button
                             key="historikk"
                             onClick={() => this.closeWith(this.props.visHistorikk)}
                             className="Select-control"

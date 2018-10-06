@@ -23,8 +23,11 @@ def post_transaksjon(bank):
     krev_tilgang_til_bank(bank)
     
     prev = db.transaksjoner.find_one({"_id": ObjectId(dto["id"])}) if request.method == "PUT" else None
-    if prev and prev["bank"] != bank:
-        raise Exception("Klienten gjorde PUT transaksjon/%s på id=%s, men denne IDen har bank=%s" % (bank, dto["id"], prev["bank"]))
+    if prev:
+        if prev["bank"] != bank:
+            raise Exception("Klienten gjorde PUT transaksjon/%s på id=%s, men denne IDen har bank=%s" % (bank, dto["id"], prev["bank"]))
+        if prev.get("deleted", False):
+            raise Exception("Klienten gjorde PUT transaksjon på id=%s, men denne transaksjonen er slettet" % dto["id"])
 
     transaksjon = {
             "bank": bank,
@@ -46,27 +49,29 @@ def post_transaksjon(bank):
             "timestamp": kursTimestamp
         }
 
+    if prev:
+        transaksjon["forgjenger"] = prev["_id"]
+
     insertion = db.transaksjoner.insert_one(transaksjon)
     if prev:
-        db.transaksjoner.find_one_and_update({"_id": prev["_id"]}, {"$set": {"replacedBy": insertion.inserted_id, "deleted": True}})
+        db.transaksjoner.find_one_and_update({"_id": prev["_id"]}, {"$set": {"etterkommer": insertion.inserted_id, "deleted": True}})
     
     return no_content()
 
-
 def etterkommere(transaksjon):
-    if "replacedBy" in transaksjon:
-        etterkommer = db.transaksjoner.find_one({"_id": ObjectId(transaksjon["replacedBy"])})
+    if "etterkommer" in transaksjon:
+        etterkommer = db.transaksjoner.find_one({"_id": ObjectId(transaksjon["etterkommer"])})
         return [etterkommer] + etterkommere(etterkommer)
     else:
         return []
 
 def forgjengere(transaksjon):
-    forgjenger = db.transaksjoner.find_one({"replacedBy": transaksjon["_id"]})
-    if forgjenger:
+    if "forgjenger" in transaksjon:
+        forgjenger = db.transaksjoner.find_one({"_id": ObjectId(transaksjon["forgjenger"])})
         return forgjengere(forgjenger) + [forgjenger]
     else:
         return []
-
+    
 @app.route('/transaksjon/<transaksjonId>/historikk', methods=['GET'])
 def get_transaksjon_historikk(transaksjonId):
     transaksjon = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})
@@ -103,7 +108,8 @@ def transaksjon_dto(transaksjon):
         "timestamp": transaksjon["timestamp"].isoformat(),
         "kommentar": transaksjon["kommentar"],
         "deleted": transaksjon.get("deleted", False),
-        "replacedBy": str(transaksjon["replacedBy"]) if "replacedBy" in transaksjon else None,
+        "forgjenger": str(transaksjon["forgjenger"]) if "forgjenger" in transaksjon else None,
+        "etterkommer": str(transaksjon["etterkommer"]) if "etterkommer" in transaksjon else None,
         "valutta": {
             "id": transaksjon["valutta"]["id"],
             "belop": transaksjon["valutta"]["belop"],
