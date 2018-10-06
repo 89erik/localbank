@@ -122,8 +122,11 @@ def transaksjon_dto(transaksjon):
     }
 
 def hent_bruker_fra_db():
-    brukernavn = request.environ.get('REMOTE_USER') or "LAN"
-    return db.brukere.find_one({"brukernavn": brukernavn})
+    brukernavn = request.environ.get('REMOTE_USER') or "LAN2"
+    bruker = db.brukere.find_one({"brukernavn": brukernavn})
+    if not bruker:
+        raise Forbidden("Bruker %s har ingen tilknytning til localbank" % brukernavn)
+    return bruker
 
 
 @app.route("/kontekst")
