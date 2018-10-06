@@ -19,10 +19,6 @@ export const GET_KONTEKST_REQUEST = "GET_KONTEKST_REQUEST";
 export const GET_KONTEKST_SUCCESS = "GET_KONTEKST_SUCCESS";
 export const GET_KONTEKST_FAILURE = "GET_KONTEKST_FAILURE";
 
-export const GET_HISTORIKK_REQUEST = "GET_HISTORIKK_REQUEST";
-export const GET_HISTORIKK_SUCCESS = "GET_HISTORIKK_SUCCESS";
-export const GET_HISTORIKK_FAILURE = "GET_HISTORIKK_FAILURE";
-
 export const GET_BRUKERE_REQUEST = "GET_BRUKERE_REQUEST";
 export const GET_BRUKERE_SUCCESS = "GET_BRUKERE_SUCCESS";
 export const GET_BRUKERE_FAILURE = "GET_BRUKERE_FAILURE";
@@ -43,6 +39,8 @@ export const EDITABLE_LIST_REMOVE = "EDITABLE_LIST_REMOVE";
 export const EDITABLE_LIST_SELECT = "EDITABLE_LIST_SELECT";
 export const EDITABLE_LIST_NEW_LINE_INPUT = "EDITABLE_LIST_NEW_LINE_INPUT";
 export const EDITABLE_LIST_HEADLINE_INPUT = "EDITABLE_LIST_HEADLINE_INPUT";
+
+export const SET_VIS_SLETTEDE_TRANSAKSJONER = "SET_VIS_SLETTEDE_TRANSAKSJONER";
 
 export const selectTransaksjon = transaksjonId => ({
     type: SELECT_TRANSAKSJON,
@@ -110,6 +108,13 @@ export const deleteTransaksjon = transaksjon => dispatch => {
         });
 }
 
+export const restoreTransaksjon = transaksjon => dispatch => {
+    PUT("/transaksjon/restore/" + transaksjon.id)
+        .then(() => {
+            dispatch(fetchTransaksjoner())
+        });
+}
+
 export const fetchKontekst = () => (dispatch, getState) => {
     const valgtBank = bank(getState);
 
@@ -127,14 +132,6 @@ export const fetchKontekst = () => (dispatch, getState) => {
 
 export const visHistorikk = transaksjonId => (dispatch, getState) => {
     dispatch(push(`/${bank(getState)}/transaksjon/${transaksjonId}/historikk`));
-}
-
-export const fetchHistorikk = transaksjonId => dispatch => {
-    dispatch({type: GET_HISTORIKK_REQUEST, transaksjonId});
-    GET(`/transaksjon/${transaksjonId}/historikk`)
-        .then(res => res.json())
-        .then(transaksjoner => dispatch({type: GET_HISTORIKK_SUCCESS, transaksjoner}))
-        .catch(error => dispatch({type: GET_HISTORIKK_FAILURE, error}));
 }
 
 export const fetchBanker = () => dispatch => {
@@ -172,3 +169,8 @@ export const postBank = bankId => (dispatch, getState) => {
         })
         .catch(error => dispatch({type: POST_BANK_FAILURE, error}));
 }
+
+export const setVisSlettedeTransaksjoner = visSlettede => ({
+    type: SET_VIS_SLETTEDE_TRANSAKSJONER,
+    visSlettede
+});

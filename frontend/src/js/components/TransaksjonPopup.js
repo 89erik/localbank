@@ -24,8 +24,16 @@ class TransaksjonPopup extends React.Component {
             valutta: valuttaAsOption(this.props.valuttaer.find(v => v.id === this.props.transaksjon.valutta.id))
         }
     }
+
+    harHistorikk(){
+        return this.props.transaksjon.forgjenger || this.props.transaksjon.etterkommer;
+    }
+
+    erSlettet() {
+        return this.props.transaksjon.deleted;
+    }
+
     render() {
-        const harHistorikk = this.props.transaksjon && (this.props.transaksjon.forgjenger || this.props.transaksjon.etterkommer);
         return (
             <Popup open={!!this.props.transaksjon} onClose={this.props.onClose}>
                 <EditTransaksjonForm 
@@ -36,12 +44,12 @@ class TransaksjonPopup extends React.Component {
                     renderAmendments={() => [
                         <button 
                             key="delete"
-                            onClick={() => this.closeWith(this.props.deleteTransaksjon)} 
+                            onClick={() => this.closeWith(this.erSlettet() ? this.props.restoreTransaksjon : this.props.deleteTransaksjon)}
                             className="Select-control"
                         >
-                            Slett
+                            {this.erSlettet() ? "Gjenopprett" : "Slett"}
                         </button>,
-                        harHistorikk && <button
+                        this.harHistorikk() && <button
                             key="historikk"
                             onClick={() => this.closeWith(this.props.visHistorikk)}
                             className="Select-control"

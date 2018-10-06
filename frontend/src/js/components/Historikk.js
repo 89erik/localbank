@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import {fetchHistorikk} from '../actions';
+import {fetchTransaksjoner} from '../actions';
 import {belopAccessor, timestampAccessor} from '../utils/accessors';
 import '../../style/historikk.css'
 
@@ -9,8 +9,8 @@ let seq = 0;
 
 class Historikk extends Component {
     componentWillMount() {
-        if (this.props.match.params.transaksjonId !== this.props.historikk.transaksjonId) {
-            this.props.dispatch(fetchHistorikk(this.props.match.params.transaksjonId));
+        if (this.props.transaksjoner.needsFetch) {
+            this.props.dispatch(fetchTransaksjoner());
         }
     }
     
@@ -35,9 +35,30 @@ class Historikk extends Component {
             
     }
 
+    forgjengere(transaksjon) {
+        if (transaksjon.forgjenger){
+            const forgjenger = this.props.transaksjoner.items.find(t => t.id === transaksjon.forgjenger)
+            return [...this.forgjengere(forgjenger), forgjenger];
+        } else {
+            return [];
+        }
+    }
+
+    etterkommere(transaksjon) {
+        if (transaksjon.etterkommer){
+            const etterkommer = this.props.transaksjoner.items.find(t => t.id === transaksjon.etterkommer)
+            return [etterkommer, ...this.etterkommere(etterkommer)];
+        } else {
+            return [];
+        }
+    }
+
     transaksjoner() {
-        return this.props.historikk.items.map((t, i) => {
-            const forgjenger = this.props.historikk.items[i === 0 ? i : i-1];
+        const transaksjon = this.props.transaksjoner.items.find(t => t.id === this.props.match.params.transaksjonId);
+        const historikk = [...this.forgjengere(transaksjon), transaksjon, ...this.etterkommere(transaksjon)];
+
+        return historikk.map((t, i) => {
+            const forgjenger = historikk[i === 0 ? i : i-1];
 
             return {
                 lines: [
@@ -71,7 +92,7 @@ class Historikk extends Component {
 
     render() {
 
-        return this.props.historikk.isFetching 
+        return this.props.transaksjoner.needsFetch || this.props.transaksjoner.isFetching
             ? <img src="/loading.gif" className="loading-gif" alt="Laster..."/> 
             : <div className="historikk">
                 {this.transaksjoner().map(this.renderTransaksjon)}
@@ -80,7 +101,7 @@ class Historikk extends Component {
 }
 
 const mapStateToProps = state => ({
-    historikk: state.historikk
+    transaksjoner: state.transaksjoner
 });
 
 export default connect(

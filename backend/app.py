@@ -25,9 +25,9 @@ def post_transaksjon(bank):
     prev = db.transaksjoner.find_one({"_id": ObjectId(dto["id"])}) if request.method == "PUT" else None
     if prev:
         if prev["bank"] != bank:
-            raise Exception("Klienten gjorde PUT transaksjon/%s på id=%s, men denne IDen har bank=%s" % (bank, dto["id"], prev["bank"]))
+            raise BadRequest("Klienten gjorde PUT transaksjon/%s på id=%s, men denne IDen har bank=%s" % (bank, dto["id"], prev["bank"]))
         if prev.get("deleted", False):
-            raise Exception("Klienten gjorde PUT transaksjon på id=%s, men denne transaksjonen er slettet" % dto["id"])
+            raise BadRequest("Klienten gjorde PUT transaksjon på id=%s, men denne transaksjonen er slettet" % dto["id"])
 
     transaksjon = {
             "bank": bank,
@@ -58,6 +58,14 @@ def post_transaksjon(bank):
     
     return no_content()
 
+@app.route('/transaksjon/<transaksjonId>', methods=['DELETE'])
+def delete_transaksjon(transaksjonId):
+    bank = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})["bank"]
+    krev_tilgang_til_bank(bank)
+        
+    db.transaksjoner.find_one_and_update({"_id": ObjectId(transaksjonId)}, {"$set": {"deleted": True}})
+    return no_content()
+
 def etterkommere(transaksjon):
     if "etterkommer" in transaksjon:
         etterkommer = db.transaksjoner.find_one({"_id": ObjectId(transaksjon["etterkommer"])})
@@ -71,32 +79,25 @@ def forgjengere(transaksjon):
         return forgjengere(forgjenger) + [forgjenger]
     else:
         return []
-    
-@app.route('/transaksjon/<transaksjonId>/historikk', methods=['GET'])
-def get_transaksjon_historikk(transaksjonId):
+
+@app.route('/transaksjon/restore/<transaksjonId>', methods=['PUT'])
+def restore_transaksjon(transaksjonId):
     transaksjon = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})
-    if not transaksjon:
-        raise NotFound("Transaksjon med id %s finnes ikke" % transaksjonId)
+    krev_tilgang_til_bank(transaksjon["bank"])
 
-    historikk = forgjengere(transaksjon) + [transaksjon] + etterkommere(transaksjon)
-    antall_slettet = len(filter(lambda t: not t.get("deleted", False), historikk))
-    if antall_slettet != 1:
-        raise Exception("I historikken til transaksjon %s er %d aktive" % (transaksjonId, antall_slettet))
-    return json.dumps(map(transaksjon_dto, historikk))
+    if not transaksjon.get("deleted", False):
+        raise Exception("Prøvde å restore transaksjon %s som ikke er slettet" % transaksjon["_id"])
+    if any(not t.get("deleted", False) for t in forgjengere(transaksjon) + etterkommere(transaksjon)):
+        raise Exception("Prøvde å restore transaksjon %s, men denne har en aktiv forgjenger eller etterkommer" % transaksjon["_id"])
 
-@app.route('/transaksjon/<transaksjonId>', methods=['DELETE'])
-def delete_transaksjon(transaksjonId):
-    bank = db.transaksjoner.find_one({"_id": ObjectId(transaksjonId)})["bank"]
-    krev_tilgang_til_bank(bank)
-        
-    db.transaksjoner.find_one_and_update({"_id": ObjectId(transaksjonId)}, {"$set": {"deleted": True}})
+    db.transaksjoner.find_one_and_update({"_id": ObjectId(transaksjonId)}, {"$set": {"deleted": False}})
     return no_content()
 
 @app.route('/<bank>/transaksjoner', methods=['GET'])
 def get_transaksjoner(bank):
     krev_tilgang_til_bank(bank)
 
-    transaksjoner = db.transaksjoner.find({"deleted": {"$ne": True}, "bank": bank})
+    transaksjoner = db.transaksjoner.find({"bank": bank})
     return json.dumps(map(transaksjon_dto, transaksjoner))
 
 def transaksjon_dto(transaksjon):

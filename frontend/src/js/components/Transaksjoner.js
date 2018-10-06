@@ -11,7 +11,9 @@ import {
     selectTransaksjon, 
     putTransaksjon, 
     deleteTransaksjon,
-    visHistorikk
+    restoreTransaksjon,
+    visHistorikk,
+    setVisSlettedeTransaksjoner
 } from '../actions';
 import {beregnGjeld} from '../utils/gjeld';
 let seq=0;
@@ -39,7 +41,7 @@ class Transaksjoner extends Component {
     renderColumn (props) {
         const v = props.column.id === "belop" && props.original.valutta;
         const title = v.kurs && `Verdt ${props.original.belop.toFixed(2)} NOK etter kurs ${v.kurs} beregnet ${v.timestamp}, pluss 2% valuttapåslag fra banken`
-        return <div 
+        return <div
                     title={title || null}
                     onClick={() => this.props.dispatch(selectTransaksjon(props.original.id))}>
                 {props.value}
@@ -82,25 +84,46 @@ class Transaksjoner extends Component {
         }
     ];
 
+
+
     render() {
+        const aktiveTransaksjoner = this.props.transaksjoner.items.filter(t => !t.deleted);
+        const transaksjonerSomVises = this.props.transaksjoner.visSlettede 
+            ? this.props.transaksjoner.items.filter(t => !t.deleted || !t.etterkommer)
+            : aktiveTransaksjoner;
+
         return (
             <div className="transaksjoner">
-                <div className="gjeld">
-                    Gjeld (alt i NOK):
-                    {this.renderGjeld(beregnGjeld(this.props.transaksjoner.items, this.props.kontoer))}
+                <div>
+                    <div className="gjeld">
+                        Gjeld (alt i NOK):
+                        {this.renderGjeld(beregnGjeld(aktiveTransaksjoner, this.props.kontoer))}
+                    </div>
+                    <div className="toggle-deleted">
+                        <label htmlFor="deleted_toggler">Vis slettede</label>
+                        <input id="deleted_toggler" 
+                               type="checkbox" 
+                               checked={this.props.transaksjoner.visSlettede} 
+                               onChange={() => this.props.dispatch(setVisSlettedeTransaksjoner(!this.props.transaksjoner.visSlettede))}
+                        />
+                    </div>
                 </div>
                 <ReactTable 
-                    data={this.props.transaksjoner.items} 
+                    data={transaksjonerSomVises}
                     columns={this.columns}
                     filterable
                     defaultSorted={[{id: "timestamp", desc: true}]}
                     loading={this.props.transaksjoner.isFetching}
+                    getTrProps = {(state, rowInfo) => ({
+                        className: rowInfo && rowInfo.original.deleted ? "deleted" : ""
+                    })}
                 />
                 <TransaksjonPopup
                     transaksjon={this.props.transaksjoner.selectedTransaksjon}
                     onClose={() => this.props.dispatch(selectTransaksjon(false))}
                     putTransaksjon={(id, t) => this.props.dispatch(putTransaksjon(id, t))}
                     deleteTransaksjon={() => this.props.dispatch(deleteTransaksjon(this.props.transaksjoner.selectedTransaksjon))}
+                    restoreTransaksjon={() => this.props.dispatch(restoreTransaksjon(this.props.transaksjoner.selectedTransaksjon))}
                     visHistorikk={() => this.props.dispatch(visHistorikk(this.props.transaksjoner.selectedTransaksjon.id))}
                     kontoer={this.props.kontoer}
                     valuttaer={this.props.valuttaer}

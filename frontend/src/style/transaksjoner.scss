@@ -1,9 +1,14 @@
+@import "colors";
+
 .transaksjoner {
     .rt-table {
         .rt-tr-group {
             cursor: pointer;
             &:hover {
                 background-color: #eee;
+            }
+            .deleted {
+                background-color: $subtraction;
             }
         }
         .konto,.belop,.timestamp {

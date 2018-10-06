@@ -8,9 +8,6 @@ import {
     GET_TRANSAKSJONER_FAILURE,
     POST_TRANSAKSJON_SUCCESS, 
     SELECT_TRANSAKSJON,
-    GET_HISTORIKK_REQUEST,
-    GET_HISTORIKK_SUCCESS,
-    GET_HISTORIKK_FAILURE,
     GET_KONTEKST_REQUEST,
     GET_KONTEKST_SUCCESS,
     GET_KONTEKST_FAILURE,
@@ -28,10 +25,11 @@ import {
     EDITABLE_LIST_REMOVE,
     EDITABLE_LIST_SELECT,
     EDITABLE_LIST_NEW_LINE_INPUT,
-    EDITABLE_LIST_HEADLINE_INPUT
+    EDITABLE_LIST_HEADLINE_INPUT,
+    SET_VIS_SLETTEDE_TRANSAKSJONER
 } from './actions';
 
-const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, action) => {
+const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[], visSlettede: false}, action) => {
     switch (action.type){
         case GET_TRANSAKSJONER_REQUEST:
             return {
@@ -65,34 +63,12 @@ const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[]}, ac
                 ...state,
                 selectedTransaksjon: action.transaksjonId && state.items.find(t => t.id === action.transaksjonId)
             };
-        default:
-            return state;
-    }
-};
+        case SET_VIS_SLETTEDE_TRANSAKSJONER:
+            return {
+                ...state,
+                visSlettede: action.visSlettede
+            }
 
-const historikk = (state = {isFetching: false, transaksjonId: null, items:[]}, action) => {
-    switch (action.type) {
-        case GET_HISTORIKK_REQUEST:
-            return {
-                ...state,
-                isFetching: true,
-                transaksjonId: action.transaksjonId
-            };
-        case GET_HISTORIKK_FAILURE:
-            return {
-                ...state,
-                isFetching: false,
-                transaksjonId: null
-            };
-        case GET_HISTORIKK_SUCCESS:
-            return {
-                ...state,
-                isFetching: false,
-                items: action.transaksjoner.map(t => ({
-                    ...t,
-                    timestamp: new Date(t.timestamp)
-                }))
-            };
         default:
             return state;
     }
@@ -249,7 +225,6 @@ const editableList = (state = {
 
 export default combineReducers({
     transaksjoner,
-    historikk,
     kontekst,
     banker,
     brukere,
