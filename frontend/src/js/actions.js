@@ -174,6 +174,21 @@ export const postBank = bankId => (dispatch, getState) => {
         .catch(error => dispatch({type: POST_BANK_FAILURE, error}));
 }
 
+export const postBruker = brukernavn => (dispatch, getState) => {
+    const state = getState().editableList;
+    const bruker = {
+        brukernavn: brukernavn || state.headlineInput,
+        banker: state.list,
+        defaultBank: state.selected
+    };
+    POST("/brukere", bruker)
+        .then(() => {
+            dispatch(fetchBrukere());
+            dispatch(push("/admin"));
+        })
+        .catch(error => dispatch({type: UNSPECIFIED_ERROR, error}));
+}
+
 export const setVisSlettedeTransaksjoner = visSlettede => ({
     type: SET_VIS_SLETTEDE_TRANSAKSJONER,
     visSlettede

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import Select from 'react-select';
 import '../../style/editablelist.css';
+import 'react-select/dist/react-select.css'
 
 import {
     EDITABLE_LIST_INIT,
@@ -61,7 +63,7 @@ class EditableList extends Component {
                     <span className="line-op add" onClick={() => this.props.dispatch(append())}>
                         +
                     </span>
-                    <NewLineInputField />
+                    <NewLineInputField options={this.props.options} list={this.props.list}/>
                 </div>
                 <button onClick={this.props.lagre} disabled={this.props.isPersisting}>
                     Lagre
@@ -76,17 +78,44 @@ class EditableList extends Component {
     }
 }
 
-const inputFieldRenderer = actionType => props => (
-    <input 
-        autoComplete="off" 
-        type="text" 
-        value={props.value} 
-        onChange={event => props.dispatch({
-            type: actionType,
-            inputField: event.target.value
-        })}
-    />
-);
+const inputFieldRenderer = actionType => props => {
+    if (props.options) {
+        const options = props.options
+            .filter(potentialOption => !props.list.find(selectedOption => potentialOption === selectedOption))
+
+        const option = opt => opt && {
+            value: opt,
+            label: opt
+        };
+
+        return (
+            <Select
+                onChange={option => props.dispatch({
+                    type: actionType,
+                    inputField: option && option.value
+                })}
+                // onBlur={v => field.input.onBlur(v.value)}
+                options={options.map(option)}
+                value={option(props.value)}
+                clearable={false}
+                placeholder="velg konto"
+                autoBlur
+            />
+        );
+    } else {
+        return (
+            <input 
+                autoComplete="off" 
+                type="text" 
+                value={props.value} 
+                onChange={event => props.dispatch({
+                    type: actionType,
+                    inputField: event.target.value
+                })}
+            />
+        );
+    }
+};
 
 const HeadlineInputField = connect(
     state => ({value: state.editableList.headlineInput}),

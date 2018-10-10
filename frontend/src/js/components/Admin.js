@@ -19,11 +19,11 @@ class Admin extends Component {
             </BoxList>
             
             <h2>Brukere</h2>
-            <BoxList onAdd={() => console.log("ikke implementert")}>
+            <BoxList onAdd={() => this.props.dispatch(push("/admin/bruker"))}>
                 {this.props.brukere.items.map(bruker=> ({
                     header: bruker.brukernavn,
                     lines: [bruker.defaultBank].concat(bruker.banker.filter(b => b !== bruker.defaultBank)),
-                    onClick: () => console.log("ikke implementert")
+                    onClick: () => this.props.dispatch(push(`/admin/bruker/${bruker.brukernavn}`))
                 }))}
             </BoxList>
           </div>

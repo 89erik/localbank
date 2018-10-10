@@ -122,7 +122,7 @@ def transaksjon_dto(transaksjon):
     }
 
 def hent_bruker_fra_db():
-    brukernavn = request.environ.get('REMOTE_USER') or "LAN2"
+    brukernavn = request.environ.get('REMOTE_USER') or "LAN"
     bruker = db.brukere.find_one({"brukernavn": brukernavn})
     if not bruker:
         raise Forbidden("Bruker %s har ingen tilknytning til localbank" % brukernavn)
@@ -151,7 +151,7 @@ def get_kontekst(bank = None):
         "valuttaer": valuttaer
     })
     
-@app.route("/brukere")
+@app.route("/brukere", methods=["GET"])
 def get_brukere():
     krev_admin()
 
@@ -160,6 +160,25 @@ def get_brukere():
         "banker": bruker["banker"],
         "defaultBank": bruker["defaultBank"]
     }, db.brukere.find()))
+
+@app.route("/brukere", methods = ["POST"])
+def post_bruker():
+    krev_admin()
+    
+    if "defaultBank" not in request.json:
+        raise BadRequest("Mangler default bank")
+
+    bruker = {
+        "brukernavn": request.json["brukernavn"],
+        "banker": request.json["banker"],
+        "defaultBank": request.json["defaultBank"]
+    }
+
+    if not bruker["defaultBank"] or bruker["defaultBank"] not in bruker["banker"]:
+        raise BadRequest("Default bank (%s) finnes ikke i banker: %s" % (bruker["defaultBank"], bruker["banker"]))
+
+    db.brukere.update({"brukernavn": bruker["brukernavn"]}, {"$set": bruker}, upsert=True)
+    return no_content()
 
 @app.route("/banker")
 def get_banker():

@@ -2,7 +2,8 @@
 
 .editablelist {
     
-  .line > form > input {
+  .line > form > input,
+  .line > div.Select {
       width: 130px;
       font-size: 18px;
       border-radius: 5px;
