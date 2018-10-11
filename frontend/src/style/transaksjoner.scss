@@ -52,5 +52,9 @@
         flex-grow: 1;
     }
 
+    .Select-menu-outer,
+    .react-date-picker__calendar {
+        z-index: 11 !important;
+    }
 }
 
