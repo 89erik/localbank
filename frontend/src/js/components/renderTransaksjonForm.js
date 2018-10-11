@@ -7,6 +7,8 @@ import '../../style/transaksjoner.css'
 
 import {required} from '../utils/validators';
 
+const validatorClassname = ({touched, error, warning}) => (touched && ((error && "error") || (warning && "warning"))) || "";
+
 const renderSelector = (field) => (
     <Select
         {...field.input}
@@ -17,6 +19,7 @@ const renderSelector = (field) => (
         placeholder={field.placeholder}
         disabled={field.disabled}
         autoBlur
+        className={validatorClassname(field.meta)}
     />
 )
 
@@ -26,6 +29,19 @@ const renderDatePicker = (field) => (
         value={field.input.value}
         locale="nb-NO"
         clearIcon={null}
+        disabled={field.disabled}
+        className={validatorClassname(field.meta)}
+    />
+);
+
+const renderField = (field) => (
+    <input 
+        {...field.input} 
+        type={field.type} 
+        placeholder={field.placeholder} 
+        className={field.className + " " + validatorClassname(field.meta)}
+        autoComplete={field.autoComplete}
+        step={field.step}
         disabled={field.disabled}
     />
 );
@@ -39,8 +55,6 @@ export const valuttaAsOption = v => ({
     value: v.id,
     label: `${v.id} - ${v.navn}`
 });
-
-
 
 export default props => (
     <form onSubmit={props.handleSubmit} className="transaksjon-form">
@@ -63,7 +77,7 @@ export default props => (
         <Field 
             name="belop" 
             placeholder="Beløp"
-            component="input" 
+            component={renderField}
             type="number"
             step="0.001"
             validate={required}
@@ -85,7 +99,7 @@ export default props => (
         <Field 
             name="kommentar" 
             placeholder="Kommentar"
-            component="input" 
+            component={renderField}
             autoComplete="off"
             type="text"
             className="simple-field"
