@@ -8,11 +8,7 @@ import {belopAccessor, timestampAccessor} from '../utils/accessors';
 
 import {
     fetchTransaksjoner, 
-    selectTransaksjon, 
-    putTransaksjon, 
-    deleteTransaksjon,
-    restoreTransaksjon,
-    visHistorikk,
+    selectTransaksjon,
     setVisSlettedeTransaksjoner
 } from '../actions';
 import {beregnGjeld} from '../utils/gjeld';
@@ -120,10 +116,6 @@ class Transaksjoner extends Component {
                 <TransaksjonPopup
                     transaksjon={this.props.transaksjoner.selectedTransaksjon}
                     onClose={() => this.props.dispatch(selectTransaksjon(false))}
-                    putTransaksjon={(id, t) => this.props.dispatch(putTransaksjon(id, t))}
-                    deleteTransaksjon={() => this.props.dispatch(deleteTransaksjon(this.props.transaksjoner.selectedTransaksjon))}
-                    restoreTransaksjon={() => this.props.dispatch(restoreTransaksjon(this.props.transaksjoner.selectedTransaksjon))}
-                    visHistorikk={() => this.props.dispatch(visHistorikk(this.props.transaksjoner.selectedTransaksjon.id))}
                     kontoer={this.props.kontoer}
                     valuttaer={this.props.valuttaer}
                 />

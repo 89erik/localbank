@@ -17,6 +17,7 @@ class NyTransaksjon extends Component {
                     valutta: valuttaAsOption(this.props.valuttaer[0]),
                     timestamp: new Date()
                 }}
+                isSaving={this.props.isPostingTransaksjon}
             />
         );
     }
@@ -30,7 +31,8 @@ const NyTransaksjonForm = reduxForm({
 
 const mapStateToProps = state => ({
     kontoer: state.kontekst.kontoer,
-    valuttaer: state.kontekst.valuttaer
+    valuttaer: state.kontekst.valuttaer,
+    isPostingTransaksjon: state.transaksjoner.isPosting
   });
 
 export default connect(

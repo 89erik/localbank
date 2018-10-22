@@ -30,6 +30,7 @@ import {
     SET_VIS_SLETTEDE_TRANSAKSJONER,
     DISMISS_ERROR,
     UNSPECIFIED_ERROR,
+    POST_TRANSAKSJON_REQUEST,
 } from './actions';
 
 const error = (state = {message: null, fatal: false}, action) => {
@@ -56,7 +57,13 @@ const error = (state = {message: null, fatal: false}, action) => {
     }    
 }
 
-const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[], visSlettede: false}, action) => {
+const transaksjoner = (state = {
+    isFetching:false, 
+    needsFetch:true, 
+    isPosting: false, 
+    items:[], 
+    visSlettede: false
+}, action) => {
     switch (action.type){
         case GET_TRANSAKSJONER_REQUEST:
             return {
@@ -80,10 +87,21 @@ const transaksjoner = (state = {isFetching:false, needsFetch:true, items:[], vis
                     timestamp: new Date(t.timestamp)
                 }))
             };
+        case POST_TRANSAKSJON_REQUEST:
+            return {
+                ...state,
+                isPosting: true
+            }
+        case POST_TRANSAKSJON_FAILURE:
+            return {
+                ...state,
+                isPosting: false
+            }
         case POST_TRANSAKSJON_SUCCESS:
             return {
                 ...state,
-                needsFetch: true
+                needsFetch: true,
+                isPosting: false
             }
         case SELECT_TRANSAKSJON:
             return {

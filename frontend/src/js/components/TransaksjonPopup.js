@@ -1,7 +1,15 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Popup from 'reactjs-popup';
 import { reduxForm } from 'redux-form'
 import renderTransaksjonForm, {valuttaAsOption} from './renderTransaksjonForm';
+
+import {
+    putTransaksjon, 
+    deleteTransaksjon,
+    restoreTransaksjon,
+    visHistorikk
+} from '../actions';
 
 class TransaksjonPopup extends React.Component {
     closeWith(closeAction) {
@@ -33,6 +41,8 @@ class TransaksjonPopup extends React.Component {
         return (this.props.transaksjon || {}).deleted;
     }
 
+
+
     render() {
         return (
             <Popup open={!!this.props.transaksjon} onClose={this.props.onClose}>
@@ -42,17 +52,18 @@ class TransaksjonPopup extends React.Component {
                     kontoer={this.props.kontoer}
                     valuttaer={this.props.valuttaer}
                     displayOnly={this.erSlettet()}
+                    isSaving={this.props.isPostingTransaksjon}
                     renderAmendments={() => [
                         <button 
                             key="delete"
-                            onClick={() => this.closeWith(this.erSlettet() ? this.props.restoreTransaksjon : this.props.deleteTransaksjon)}
+                            onClick={() => this.closeWith(() => (this.erSlettet() ? this.props.restoreTransaksjon : this.props.deleteTransaksjon)(this.props.transaksjon))}
                             className="Select-control"
                         >
                             {this.erSlettet() ? "Gjenopprett" : "Slett"}
                         </button>,
                         this.harHistorikk() && <button
                             key="historikk"
-                            onClick={() => this.closeWith(this.props.visHistorikk)}
+                            onClick={() => this.closeWith(() => this.props.visHistorikk(this.props.transaksjon))}
                             className="Select-control"
                         >
                             Historikk
@@ -76,4 +87,18 @@ const EditTransaksjonForm = reduxForm({
 })(renderTransaksjonForm);
 
 
-export default TransaksjonPopup;
+const mapStateToProps = state => ({
+    isPostingTransaksjon: state.transaksjoner.isPosting,
+});
+
+const mapDispatchToProps = dispatch => ({
+    putTransaksjon: (id, t) => dispatch(putTransaksjon(id, t)),
+    deleteTransaksjon: t => dispatch(deleteTransaksjon(t)),
+    restoreTransaksjon: t => dispatch(restoreTransaksjon(t)),
+    visHistorikk: t => dispatch(visHistorikk(t.id))
+})
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(TransaksjonPopup)

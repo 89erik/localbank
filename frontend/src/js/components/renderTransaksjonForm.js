@@ -105,7 +105,7 @@ export default props => (
             className="simple-field"
             disabled={props.displayOnly}
         />
-        {(!props.displayOnly || null) && <button type="submit" className="Select-control">Lagre</button> }
+        {(!props.displayOnly || null) && <button type="submit" className="Select-control" disabled={props.isSaving}>Lagre</button> }
         {props.renderAmendments && props.renderAmendments()}
     </form>
 );
