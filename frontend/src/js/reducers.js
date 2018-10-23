@@ -138,7 +138,11 @@ const kontekst = (state = {
                 ...state,
                 isFetching: false,
                 valuttaer: action.valuttaer,
-                kontoer: action.kontoer,
+                kontoer: action.kontoer.map(konto => ({
+                    ...konto,
+                    fra: new Date(konto.fra),
+                    til: new Date(konto.til)
+                })),
                 bruker: action.bruker
             };
         default:

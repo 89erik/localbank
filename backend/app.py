@@ -144,10 +144,7 @@ def get_kontekst(bank = None):
             "brukernavn": bruker["brukernavn"],
             "banker": bruker["banker"]
         },
-        "kontoer": map(lambda konto: {
-            "navn": konto["navn"],
-            "felles": konto["felles"]
-        }, kontoer),
+        "kontoer": map(konto_dto, kontoer),
         "valuttaer": valuttaer
     })
     
@@ -180,6 +177,14 @@ def post_bruker():
     db.brukere.update({"brukernavn": bruker["brukernavn"]}, {"$set": bruker}, upsert=True)
     return no_content()
 
+def konto_dto(konto):
+    return {
+        "navn": konto["navn"],
+        "felles": konto["felles"],
+        "fra": konto.get("fra", datetime.min).isoformat(),
+        "til": konto.get("til", datetime.max).isoformat()
+    }
+
 @app.route("/banker")
 def get_banker():
     krev_admin()
@@ -189,10 +194,7 @@ def get_banker():
 
     return json.dumps(map(lambda bank: {
         "navn": bank,
-        "kontoer": map(lambda konto: {
-            "navn": konto["navn"],
-            "felles": konto["felles"],
-        }, kontoer(bank))
+        "kontoer": map(konto_dto, kontoer(bank))
     }, set(map(lambda konto: konto["bank"], alle_kontoer))))
 
 def flatten(lists):

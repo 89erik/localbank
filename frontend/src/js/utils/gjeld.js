@@ -1,6 +1,5 @@
 export const beregnGjeld = (transaksjoner, kontoer) => {
     if (!transaksjoner.length || !kontoer.length) return [];
-
     kontoer = kontoer.map(k => ({...k, saldo: 0}))
     
     // Beregner saldoer
@@ -9,18 +8,33 @@ export const beregnGjeld = (transaksjoner, kontoer) => {
             .map(k => ({[k.navn]: k}))
             .reduce((obj, partial) => ({...obj, ...partial}), {});
 
-        for (let i=0; i<transaksjoner.length; i++) {
-            const transaksjon = transaksjoner[i];
+        const fellesfordeling = transaksjon => {
+            const mottakere = kontoer.filter(k => !k.felles && k.fra < transaksjon.timestamp && transaksjon.timestamp < k.til);
+            const fordeltBelop = mottakere.length && transaksjon.belop / mottakere.length;
+            return {mottakere, fordeltBelop};
+        }
+
+        transaksjoner.filter(t => t.fra !== t.til).forEach(transaksjon => {
+            if (kontoerMap[transaksjon.fra].felles) {
+                const {mottakere, fordeltBelop} = fellesfordeling(transaksjon);
+                mottakere.forEach(k => k.saldo -= fordeltBelop);
+            } else if (kontoerMap[transaksjon.til].felles) {
+                const {mottakere, fordeltBelop} = fellesfordeling(transaksjon);
+                mottakere.forEach(k => k.saldo += fordeltBelop);
+            }
             kontoerMap[transaksjon.fra].saldo -= transaksjon.belop;
             kontoerMap[transaksjon.til].saldo += transaksjon.belop;
-        }
+        
+        });
+        kontoer = kontoer.filter(k => !k.felles);
     }
 
-    // Fordeler felleskonto
+    // Kontrollregner saldoer
     {
-        const felles = kontoer.find(k => k.felles);
-        kontoer = kontoer.filter(k => !k.felles);
-        kontoer.forEach(konto => konto.saldo += felles.saldo / kontoer.length)
+        const saldoSum = kontoer.reduce((s, k) => s + k.saldo, 0);
+        if (Math.abs(saldoSum) > 1) {
+            throw new Error("Summen av alle saldoer er " + saldoSum)
+        }
     }
 
     // Beregner gjeld
