@@ -10,6 +10,7 @@ import {
     restoreTransaksjon,
     visHistorikk
 } from '../actions';
+import { ikkePaavirketAvTransaksjon } from '../utils/gjeld';
 
 class TransaksjonPopup extends React.Component {
     closeWith(closeAction) {
@@ -41,9 +42,9 @@ class TransaksjonPopup extends React.Component {
         return (this.props.transaksjon || {}).deleted;
     }
 
-
-
     render() {
+        const ikkePaavirket = ikkePaavirketAvTransaksjon(this.props.transaksjon, this.props.kontoer).map(k => k.navn);
+        
         return (
             <Popup open={!!this.props.transaksjon} onClose={this.props.onClose}>
                 <EditTransaksjonForm 
@@ -74,7 +75,11 @@ class TransaksjonPopup extends React.Component {
                             className="Select-control"
                         >
                             Avbryt
-                        </button>
+                        </button>,
+                        (ikkePaavirket.length || null) && 
+                            <div key="ikke-paavirket">
+                                {ikkePaavirket.join(" og ")} er ikke påvirket av denne transaksjonen
+                            </div>
                     ]}
                 />
             </Popup>
@@ -89,6 +94,7 @@ const EditTransaksjonForm = reduxForm({
 
 const mapStateToProps = state => ({
     isPostingTransaksjon: state.transaksjoner.isPosting,
+    kontoer: state.kontekst.kontoer
 });
 
 const mapDispatchToProps = dispatch => ({

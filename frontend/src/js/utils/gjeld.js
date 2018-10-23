@@ -1,15 +1,27 @@
+const hashMap = kontoer => 
+    kontoer.map(k => ({[k.navn]: k}))
+           .reduce((obj, partial) => ({...obj, ...partial}), {});
+
+const paavirketAvTransaksjon = (transaksjon, konto) => 
+    !konto.felles && konto.fra < transaksjon.timestamp && transaksjon.timestamp < konto.til;
+
+export const ikkePaavirketAvTransaksjon = (transaksjon, kontoer) => {
+    if (!transaksjon || !kontoer.length) return [];
+    const kontoerMap = hashMap(kontoer);
+    return [transaksjon.fra, transaksjon.til].some(k => kontoerMap[k].felles)
+        ? kontoer.filter(k => !k.felles && !paavirketAvTransaksjon(transaksjon, k))
+        : [];
+}
+
 export const beregnGjeld = (transaksjoner, kontoer) => {
     if (!transaksjoner.length || !kontoer.length) return [];
     kontoer = kontoer.map(k => ({...k, saldo: 0}))
     
     // Beregner saldoer
     {
-        const kontoerMap = kontoer
-            .map(k => ({[k.navn]: k}))
-            .reduce((obj, partial) => ({...obj, ...partial}), {});
-
+        const kontoerMap = hashMap(kontoer);
         const fellesfordeling = transaksjon => {
-            const mottakere = kontoer.filter(k => !k.felles && k.fra < transaksjon.timestamp && transaksjon.timestamp < k.til);
+            const mottakere = kontoer.filter(k => paavirketAvTransaksjon(transaksjon, k));
             const fordeltBelop = mottakere.length && transaksjon.belop / mottakere.length;
             return {mottakere, fordeltBelop};
         }
