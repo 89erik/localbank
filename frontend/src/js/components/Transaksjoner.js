@@ -112,6 +112,8 @@ class Transaksjoner extends Component {
                         onClick: () => this.props.dispatch(selectTransaksjon(rowInfo.original.id)),
                         className: rowInfo && rowInfo.original.deleted ? "deleted" : ""
                     })}
+                    defaultPageSize={this.props.antallRader}
+                    pageSizeOptions={[...([this.props.antallRader] || []), 5, 10, 20, 25, 50, 100]}
                 />
                 <TransaksjonPopup
                     transaksjon={this.props.transaksjoner.selectedTransaksjon}
