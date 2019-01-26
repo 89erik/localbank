@@ -140,8 +140,8 @@ const kontekst = (state = {
                 valuttaer: action.valuttaer,
                 kontoer: action.kontoer.map(konto => ({
                     ...konto,
-                    fra: new Date(konto.fra),
-                    til: new Date(konto.til)
+                    fra: konto.fra && new Date(konto.fra),
+                    til: konto.til && new Date(konto.til)
                 })),
                 bruker: action.bruker
             };
@@ -172,7 +172,14 @@ const banker = (state = {
             return {
                 ...state,
                 isFetching: false,
-                items: action.banker
+                items: action.banker.map(bank => ({
+                    ...bank,
+                    kontoer: bank.kontoer.map(konto => ({
+                        ...konto,
+                        fra: konto.fra && new Date(konto.fra),
+                        til: konto.til && new Date(konto.til)
+                    }))
+                }))
             };
         case POST_BANK_REQUEST:
             return {

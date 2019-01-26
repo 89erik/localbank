@@ -3,7 +3,7 @@ const hashMap = kontoer =>
            .reduce((obj, partial) => ({...obj, ...partial}), {});
 
 const paavirketAvTransaksjon = (transaksjon, konto) => 
-    !konto.felles && konto.fra < transaksjon.timestamp && transaksjon.timestamp < konto.til;
+    !konto.felles && (!konto.fra || konto.fra < transaksjon.timestamp) && (!konto.til || transaksjon.timestamp < konto.til);
 
 export const ikkePaavirketAvTransaksjon = (transaksjon, kontoer) => {
     if (!transaksjon || !kontoer.length) return [];

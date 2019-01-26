@@ -1,0 +1,13 @@
+.konto-admin {
+    form.konto-form {
+        max-width: 300px;
+        &>div {
+            display: flex;
+            justify-content: space-between;
+            .react-date-picker__calendar--above-label {
+                bottom: unset !important;
+                top: 100% !important;
+            }
+        }
+    }
+}

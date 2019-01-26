@@ -9,6 +9,7 @@ import Historikk from './components/Historikk';
 import Admin from './components/Admin';
 import BankAdmin from './components/BankAdmin';
 import BrukerAdmin from './components/BrukerAdmin';
+import KontoAdmin from './components/KontoAdmin';
 
 import {
     dismissError,
@@ -52,6 +53,7 @@ class Router extends Component {
                     <Route exact path="/admin" component={Admin} />
                     <Route exact path="/admin/bank" component={BankAdmin} />
                     <Route exact path="/admin/bank/:bankId" component={BankAdmin} />
+                    <Route exact path="/admin/bank/:bankId/:kontoId" component={KontoAdmin} />
                     <Route exact path="/admin/bruker" component={BrukerAdmin} />
                     <Route exact path="/admin/bruker/:brukernavn" component={BrukerAdmin} />
                 </SubStateDependence>
