@@ -11,6 +11,7 @@ import dateutil.parser
 
 import valutta
 from errors import ApiException, Forbidden, NotFound, BadRequest
+import dto
 
 app = Flask(__name__)
 db = MongoClient("localhost", 27017).localbank
@@ -98,28 +99,8 @@ def get_transaksjoner(bank):
     krev_tilgang_til_bank(bank)
 
     transaksjoner = db.transaksjoner.find({"bank": bank})
-    return json.dumps(map(transaksjon_dto, transaksjoner))
+    return json.dumps(map(dto.transaksjon, transaksjoner))
 
-def transaksjon_dto(transaksjon):
-    return {
-        "id": str(transaksjon["_id"]),
-        "fra": transaksjon["fra"],
-        "til": transaksjon["til"],
-        "belop": transaksjon["belop"],
-        "timestamp": transaksjon["timestamp"].isoformat(),
-        "kommentar": transaksjon["kommentar"],
-        "deleted": transaksjon.get("deleted", False),
-        "forgjenger": str(transaksjon["forgjenger"]) if "forgjenger" in transaksjon else None,
-        "etterkommer": str(transaksjon["etterkommer"]) if "etterkommer" in transaksjon else None,
-        "valutta": {
-            "id": transaksjon["valutta"]["id"],
-            "belop": transaksjon["valutta"]["belop"],
-            "kurs": transaksjon["valutta"]["kurs"],
-            "timestamp": transaksjon["valutta"]["timestamp"]
-        } if "valutta" in transaksjon else {
-            "id": "NOK"
-        }
-    }
 
 def hent_bruker_fra_db():
     brukernavn = request.environ.get('REMOTE_USER') or "LAN"
@@ -144,7 +125,7 @@ def get_kontekst(bank = None):
             "brukernavn": bruker["brukernavn"],
             "banker": bruker["banker"]
         },
-        "kontoer": map(konto_dto, kontoer),
+        "kontoer": map(dto.konto, kontoer),
         "valuttaer": valuttaer
     })
     
@@ -177,13 +158,6 @@ def post_bruker():
     db.brukere.update({"brukernavn": bruker["brukernavn"]}, {"$set": bruker}, upsert=True)
     return no_content()
 
-def konto_dto(konto):
-    return {
-        "navn": konto["navn"],
-        "felles": konto["felles"],
-        "fra": konto.get("fra", datetime.min).isoformat(),
-        "til": konto.get("til", datetime.max).isoformat()
-    }
 
 @app.route("/banker")
 def get_banker():
@@ -194,7 +168,7 @@ def get_banker():
 
     return json.dumps(map(lambda bank: {
         "navn": bank,
-        "kontoer": map(konto_dto, kontoer(bank))
+        "kontoer": map(dto.konto, kontoer(bank))
     }, set(map(lambda konto: konto["bank"], alle_kontoer))))
 
 def flatten(lists):
