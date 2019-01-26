@@ -211,7 +211,8 @@ def post_bank():
 
 
 def krev_tilgang_til_bank(bank):
-    if not bank in hent_bruker_fra_db()["banker"]:
+    bruker = hent_bruker_fra_db()
+    if not bank in bruker["banker"] and not bruker.get("admin", False):
         raise Forbidden("Du har ikke tilgang til bank '%s'" % bank)
 
 def krev_admin():
