@@ -1,50 +1,9 @@
 import React from 'react';
 import { Field } from 'redux-form'
-import DatePicker from 'react-date-picker'
-import Select from 'react-select';
-import 'react-select/dist/react-select.css'
 import '../../style/transaksjoner.css'
 
 import {required} from '../utils/validators';
-
-const validatorClassname = ({touched, error, warning}) => (touched && ((error && "error") || (warning && "warning"))) || "";
-
-const renderSelector = (field) => (
-    <Select
-        {...field.input}
-        onChange={field.input.onChange}
-        onBlur={v => field.input.onBlur(v.value)}
-        clearable={field.clearable || false}
-        options={field.options}
-        placeholder={field.placeholder}
-        disabled={field.disabled}
-        autoBlur
-        className={validatorClassname(field.meta)}
-    />
-)
-
-const renderDatePicker = (field) => (
-    <DatePicker
-        onChange={field.input.onChange}
-        value={field.input.value}
-        locale="nb-NO"
-        clearIcon={null}
-        disabled={field.disabled}
-        className={validatorClassname(field.meta)}
-    />
-);
-
-const renderField = (field) => (
-    <input 
-        {...field.input} 
-        type={field.type} 
-        placeholder={field.placeholder} 
-        className={field.className + " " + validatorClassname(field.meta)}
-        autoComplete={field.autoComplete}
-        step={field.step}
-        disabled={field.disabled}
-    />
-);
+import {renderField, renderDatePicker, renderSelector} from './formComponents';
 
 export const kontoAsOption = (prefix, konto) => ({
     value: konto.navn,
