@@ -6,7 +6,6 @@ from flask import Flask, request, json
 from pymongo import MongoClient
 from bson import json_util
 from bson.objectid import ObjectId
-from datetime import datetime
 import dateutil.parser
 
 import valutta
@@ -209,6 +208,31 @@ def post_bank():
     db.kontoer.insert_many(kontoer)
     return no_content()
 
+@app.route("/<bank>/konto", methods = ["PUT"])
+def put_konto(bank):
+    krev_admin()
+    dto = request.json
+    gammel_konto = db.kontoer.find_one({"_id": ObjectId(dto["id"])})
+    if bank != gammel_konto["bank"]:
+        raise BadRequest("Kan ikke flytte konto til annen bank")
+    if dto["navn"] != gammel_konto["navn"]:
+        raise BadRequest("Kan ikke bytte navn på konto")
+    if dto["felles"] != gammel_konto["felles"]:
+        raise BadRequest("Kan ikke endre på felles")
+
+    ny_konto = {
+        "navn": dto["navn"],
+        "bank": bank,
+        "felles": dto["felles"]
+    }
+    if dto.get("til"):
+        ny_konto["til"] = dateutil.parser.parse(dto["til"])
+    if dto.get("fra"):
+        ny_konto["fra"] = dateutil.parser.parse(dto["fra"])
+
+    db.kontoer.update({"_id": ObjectId(dto["id"])}, ny_konto)
+    return no_content()
+    
 
 def krev_tilgang_til_bank(bank):
     bruker = hent_bruker_fra_db()

@@ -23,6 +23,7 @@ def transaksjon(transaksjon):
 
 def konto(konto):
     return {
+        "id": str(konto["_id"]),
         "navn": konto["navn"],
         "felles": konto["felles"],
         "fra": konto["fra"].isoformat() if "fra" in konto else None,

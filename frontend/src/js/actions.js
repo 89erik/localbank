@@ -189,6 +189,20 @@ export const postBruker = brukernavn => (dispatch, getState) => {
         .catch(error => dispatch({type: UNSPECIFIED_ERROR, error}));
 }
 
+export const putKonto = (bankId, konto) => (dispatch) => {
+    konto = {
+        ...konto,
+        fra: konto.fra && withoutTimezone(konto.fra),
+        til: konto.til && withoutTimezone(konto.til)
+    };
+    PUT(`/${bankId}/konto`, konto)
+        .then(() => {
+            dispatch(fetchBanker());
+            dispatch(push(`/admin/bank/${bankId}`));
+        })
+        .catch(error => dispatch({type: UNSPECIFIED_ERROR, error}));
+}
+
 export const setVisSlettedeTransaksjoner = visSlettede => ({
     type: SET_VIS_SLETTEDE_TRANSAKSJONER,
     visSlettede
