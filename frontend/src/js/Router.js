@@ -49,7 +49,7 @@ class Router extends Component {
         return (
           <div>
             <Switch>
-                <SubStateDependence path="/admin" subStates={adminSubStates}>
+                <SubStateDependence path="/admin" subStates={adminSubStates} key="admin">
                     <Route exact path="/admin" component={Admin} />
                     <Route exact path="/admin/bank" component={BankAdmin} />
                     <Route exact path="/admin/bank/:bankId" component={BankAdmin} />
@@ -58,7 +58,7 @@ class Router extends Component {
                     <Route exact path="/admin/bruker/:brukernavn" component={BrukerAdmin} />
                 </SubStateDependence>
 
-                <SubStateDependence path="/" subState={kontekst}>
+                <SubStateDependence path="/" subState={kontekst} key="bank">
                     <Route exact path="/:bankId/transaksjon/:transaksjonId/historikk" component={Historikk}/>
                     <Route exact path="/:bankId" component={Bank} />
                 </SubStateDependence>

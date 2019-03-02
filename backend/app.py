@@ -122,7 +122,8 @@ def get_kontekst(bank = None):
         "valgtBank": bank,
         "bruker": {
             "brukernavn": bruker["brukernavn"],
-            "banker": bruker["banker"]
+            "banker": bruker["banker"],
+            "admin": bruker.get("admin", False)
         },
         "kontoer": map(dto.konto, kontoer),
         "valuttaer": valuttaer
